@@ -4,13 +4,8 @@ import { Menu } from 'lucide-react';
 export default function SideBar() {
 
   return (
-    <div className="fixed p-[20px] ml-[5px] w-[310px] h-[100%] font-sans bg-white">
-      <div className="flex flex-row items-center justify-center gap-[10px]">
-        <Menu className="w-[30px] h-[30px]"/>
-        <h1 className="text-[40px] mb-2 font-bold">Hourly Data</h1>
-      </div>
-
-      <div className="ml-[42px]">
+    <div className="fixed p-[20px] ml-[0px] w-[280px] h-[100%] font-sans bg-white z-[1000]">
+      <div className="ml-[46px]">
         <h3 className="mb-[10px] font-bold text-lg">Subjects:</h3>
         <div className="flex flex-row items-center pb-[8px]">
           <div className="w-[18px] h-[18px] border-[3px] border-black bg-[#535353]"></div>

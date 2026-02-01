@@ -14,10 +14,10 @@ export default function WeekHours() {
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
   
   return (
-    <div className="flex flex-row p-[20px] pl-[330px]">
+    <div className="flex flex-row p-[20px] pl-[300px]">
       {days.map((day, dayIndex) => (
         <div key={dayIndex} className="mb-[30px]">
-          <div className="">
+          <div className="bg-red-500 sticky top-0">
             <h3  className="text-[18px] font-bold mb-[10px] justify-center items-center flex">{day}</h3>
             <h3  className="text-[18px] font-bold mb-[10px] justify-center items-center flex">{currentWeekStart.add(dayIndex, "day").format('MMM DD')}</h3>
           </div>
