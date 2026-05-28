@@ -14,7 +14,7 @@ export default function WeekHours() {
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
   
   return (
-    <div className="flex flex-row p-[20px] pl-[300px]">
+    <div className="flex flex-row p-[20px] pl-[320px]">
       {days.map((day, dayIndex) => (
         <div key={dayIndex} className="mb-[30px]">
           <div className="bg-red-500 sticky top-0">
