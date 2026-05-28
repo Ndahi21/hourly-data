@@ -5,7 +5,7 @@ export default function SideBar() {
 
   return (
     <div className="fixed p-[20px] ml-[0px] w-[280px] h-[100%] font-sans bg-white z-[1000]">
-      <div className="ml-[54px]">
+      <div className="ml-[52px]">
         <h3 className="mb-[10px] font-bold text-lg">Subjects:</h3>
         <div className="flex flex-row items-center pb-[6px]">
           <div className="w-[18px] h-[18px] border-[3px] border-black bg-[#535353]"></div>
