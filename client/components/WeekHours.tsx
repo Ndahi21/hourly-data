@@ -14,8 +14,8 @@ export default function WeekHours() {
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
   
   return (
-    <div className="p-[20px] pl-[320px]">
-      <div className="fixed top-[36px] left-[320px] right-0 z-50 bg-red-500 flex">
+    <div className="p-[20px] pl-[340px]">
+      <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-red-500 flex">
         {days.map((day, dayIndex) => (
           <div key={dayIndex} className="w-[100px]">
             <h3 className="text-[18px] font-bold mb-[10px] flex justify-center">
@@ -28,9 +28,9 @@ export default function WeekHours() {
         ))}
       </div>
 
-      <div className="pt-[100px] flex flex-row">
+      <div className="pt-[14px] flex flex-row">
         {days.map((day, dayIndex) => (
-          <div key={dayIndex} className="mb-[30px]">
+          <div key={dayIndex} className="">
             {Array.from({ length: 24 }, (_, hourIndex) => (
               <div
                 key={hourIndex}
