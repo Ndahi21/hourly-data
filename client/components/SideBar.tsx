@@ -30,17 +30,17 @@ export default function SideBar() {
           + Add Subject
         </div>
 
-        <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/images/graph.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p>View Analytics</p>
+        <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+          <img src="/images/graph.png" className="block w-[30px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+          <p className="mx-auto ml-[2px] mt-[4px]">View Analytics</p>
         </div>
-        <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/images/routine.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p>Edit Routine</p>
+        <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+          <img src="/images/routine.png" className="block w-[30px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+          <p className="mx-auto ml-[2px] mt-[4px]">Edit Routine</p>
         </div>
-        <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/images/event.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p>Add Event</p>
+        <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+          <img src="/images/event.png" className="block w-[30px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+          <p className="mx-auto ml-[2px] mt-[4px]">Add Event</p>
         </div>
       </div>
     </div>
