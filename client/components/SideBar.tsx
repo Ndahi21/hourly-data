@@ -26,19 +26,20 @@ export default function SideBar() {
       </div>
 
       <div className="ml-[20px]">
-        <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+        <div className="border border-[2px] border-solid border-[#777777] p-[10px] py-[4px] text-center bg-gray-200 cursor-pointer mt-[12px] mb-[24px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-300">
           + Add Subject
         </div>
+
         <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/graph.png" className="w-[30px] pl-[45px]"/>
+          <img src="/images/graph.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
           <p>View Analytics</p>
         </div>
         <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/routine.png" className="w-[30px] pl-[47px]"/>
+          <img src="/images/routine.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
           <p>Edit Routine</p>
         </div>
         <div className="border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <img src="/event.png" className="w-[30px] pl-[50px]"/>
+          <img src="/images/event.png" className="block w-[30px] h-[30px] mx-auto mb-[4px] object-contain"/>
           <p>Add Event</p>
         </div>
       </div>
