@@ -59,7 +59,7 @@ export default function SideBar() {
 
   return (
     <>
-      <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[280px] h-[100%] font-sans bg-white z-[1000]">
+      <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[300px] h-[100%] font-sans bg-white z-[1000]">
       <HourColors subjects={subjects} />
 
       <div className="ml-[20px]">
