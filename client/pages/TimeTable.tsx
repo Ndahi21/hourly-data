@@ -5,7 +5,7 @@ import SideBar from '../components/SideBar';
 import TopBar from '../components/TopBar';
 
 export default function TimeTable() {
-  const [selectedColor, setSelectedColor] = useState('#535353');
+  const [selectedColor, setSelectedColor] = useState('');
 
   return (
     <section>

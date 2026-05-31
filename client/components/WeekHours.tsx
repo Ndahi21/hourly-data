@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 type WeekHoursProps = {
@@ -25,6 +25,29 @@ export default function WeekHours({ selectedColor }: WeekHoursProps) {
       [key]: selectedColor,
     }));
   };
+
+  // User clicks then slides down to paint multiple hours:
+  const [isPainting, setIsPainting] = useState(false);
+
+  const handleMouseDown = (dayIndex: number, hourIndex: number) => {
+    setIsPainting(true);
+    paintHourBox(dayIndex, hourIndex);
+  };
+
+  const handleMouseEnter = (dayIndex: number, hourIndex: number) => {
+    if (!isPainting) {
+      return;
+    }
+
+    paintHourBox(dayIndex, hourIndex);
+  };
+
+  useEffect(() => {
+    const handleMouseUp = () => setIsPainting(false);
+
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, []);
   
   return (
     <div className="p-[20px] pl-[340px]">
@@ -79,11 +102,11 @@ export default function WeekHours({ selectedColor }: WeekHoursProps) {
                 key={hourIndex}
                 className="w-[100px] h-[30px] border border-solid border-[#333333] flex items-center justify-center cursor-pointer"
                 style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`] ?? '#ffffff' }}
-                onClick={() => paintHourBox(dayIndex, hourIndex)}
+                onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
+                onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}
+                onMouseUp={() => setIsPainting(false)}
                 title={`${day} - ${hourIndex}:00`}
-              >
-                <span className="text-[12px]">{hourIndex}</span>
-              </div>
+              />
             ))}
           </div>
         ))}
