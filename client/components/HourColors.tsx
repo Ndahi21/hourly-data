@@ -8,9 +8,11 @@ export type Subject = {
 
 type HourColorsProps = {
   subjects: Subject[];
+  selectedColor: string;
+  onSelectColor: (color: string) => void;
 };
 
-export default function HourColors({ subjects }: HourColorsProps) {
+export default function HourColors({ subjects, selectedColor, onSelectColor }: HourColorsProps) {
 
   return (
     <>
@@ -24,7 +26,14 @@ export default function HourColors({ subjects }: HourColorsProps) {
         </div>
         {subjects.map((subject, index) => (
           <div key={`${subject.name}-${index}`} className="flex flex-row items-center gap-[10px] mb-[4px]">
-            <div style={{ backgroundColor: subject.color }} className="w-[16px] h-[16px] border-[2px] border-black"></div>
+            <button
+              type="button"
+              onClick={() => onSelectColor(subject.color)}
+              style={{ backgroundColor: subject.color }}
+              className={`w-[16px] h-[16px] border ${selectedColor === subject.color ? 'border-[3px] border-black' : 'border-[2px] border-black'}`}
+              aria-label={`Use ${subject.name} color`}
+              title={`Use ${subject.name} color`}
+            />
             <p className="text-[16px] font-semibold">{subject.name}</p>
           </div>
         ))}

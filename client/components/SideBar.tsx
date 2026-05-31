@@ -32,7 +32,12 @@ const colorChoices = [
   '#4db6ac',
 ];
 
-export default function SideBar() {
+type SideBarProps = {
+  selectedColor: string;
+  onSelectColor: (color: string) => void;
+};
+
+export default function SideBar({ selectedColor, onSelectColor }: SideBarProps) {
   const [subjects, setSubjects] = useState<Subject[]>(defaultSubjects);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -46,6 +51,7 @@ export default function SideBar() {
     }
 
     setSubjects((prev) => [...prev, { name: cleanName, color: newSubjectColor }]);
+    onSelectColor(newSubjectColor);
     setNewSubjectName('');
     setNewSubjectColor(colorChoices[0]);
     setIsAddOpen(false);
@@ -60,7 +66,7 @@ export default function SideBar() {
   return (
     <>
       <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[300px] h-[100%] font-sans bg-white z-[1000]">
-      <HourColors subjects={subjects} />
+      <HourColors subjects={subjects} selectedColor={selectedColor} onSelectColor={onSelectColor} />
 
       <div className="ml-[20px]">
         <button

@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 
-export default function WeekHours() {
+type WeekHoursProps = {
+  selectedColor: string;
+};
+
+export default function WeekHours({ selectedColor }: WeekHoursProps) {
+  const [paintedHours, setPaintedHours] = useState<Record<string, string>>({});
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const startDate = dayjs('2026-01-17');
@@ -12,6 +17,14 @@ export default function WeekHours() {
   const daysSinceStart = today.diff(startDate, "day");   
   const weeksSinceStart = Math.floor(daysSinceStart / 7);
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
+
+  const paintHourBox = (dayIndex: number, hourIndex: number) => {
+    const key = `${dayIndex}-${hourIndex}`;
+    setPaintedHours((prev) => ({
+      ...prev,
+      [key]: selectedColor,
+    }));
+  };
   
   return (
     <div className="p-[20px] pl-[340px]">
@@ -64,7 +77,9 @@ export default function WeekHours() {
             {Array.from({ length: 24 }, (_, hourIndex) => (
               <div
                 key={hourIndex}
-                className="w-[100px] h-[30px] border border-solid border-[#333333] flex items-center justify-center cursor-pointer bg-white"
+                className="w-[100px] h-[30px] border border-solid border-[#333333] flex items-center justify-center cursor-pointer"
+                style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`] ?? '#ffffff' }}
+                onClick={() => paintHourBox(dayIndex, hourIndex)}
                 title={`${day} - ${hourIndex}:00`}
               >
                 <span className="text-[12px]">{hourIndex}</span>
