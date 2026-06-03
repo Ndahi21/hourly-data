@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import HourColors, { Subject } from './HourColors';
 
 const defaultSubjects: Subject[] = [
@@ -33,25 +33,66 @@ const colorChoices = [
 ];
 
 type SideBarProps = {
-  selectedColor: string;
-  onSelectColor: (color: string) => void;
+  selectedSubject: Subject | null;
+  onSelectSubject: (subject: Subject) => void;
 };
 
-export default function SideBar({ selectedColor, onSelectColor }: SideBarProps) {
+export default function SideBar({ selectedSubject, onSelectSubject }: SideBarProps) {
   const [subjects, setSubjects] = useState<Subject[]>(defaultSubjects);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
   const [newSubjectColor, setNewSubjectColor] = useState(colorChoices[0]);
 
-  const saveSubject = () => {
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const response = await fetch('/api/subjects');
+        if (!response.ok) {
+          return;
+        }
+
+        const data: { subjects: Subject[] } = await response.json();
+        if (data.subjects.length > 0) {
+          setSubjects(data.subjects);
+          onSelectSubject(data.subjects[0]);
+        }
+      } catch {
+        // Keep local defaults if the API is not running.
+      }
+    };
+
+    loadSubjects();
+  }, [onSelectSubject]);
+
+  const saveSubject = async () => {
     const cleanName = newSubjectName.trim();
 
     if (!cleanName) {
       return;
     }
 
-    setSubjects((prev) => [...prev, { name: cleanName, color: newSubjectColor }]);
-    onSelectColor(newSubjectColor);
+    const newSubject = { name: cleanName, color: newSubjectColor };
+
+    try {
+      const response = await fetch('/api/subjects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSubject),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data: { subject: Subject } = await response.json();
+      setSubjects((prev) => [...prev, data.subject]);
+      onSelectSubject(data.subject);
+    } catch {
+      // Fallback for offline development.
+      setSubjects((prev) => [...prev, newSubject]);
+      onSelectSubject(newSubject);
+    }
+
     setNewSubjectName('');
     setNewSubjectColor(colorChoices[0]);
     setIsAddOpen(false);
@@ -66,7 +107,7 @@ export default function SideBar({ selectedColor, onSelectColor }: SideBarProps) 
   return (
     <>
       <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[300px] h-[100%] font-sans bg-white z-[1000]">
-      <HourColors subjects={subjects} selectedColor={selectedColor} onSelectColor={onSelectColor} />
+      <HourColors subjects={subjects} selectedSubject={selectedSubject} onSelectSubject={onSelectSubject} />
 
       <div className="ml-[20px]">
         <button

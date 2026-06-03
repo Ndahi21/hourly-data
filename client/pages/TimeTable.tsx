@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import WeekHours from '../components/WeekHours';
 import SideBar from '../components/SideBar';
 import TopBar from '../components/TopBar';
+import { Subject } from '../components/HourColors';
 
 export default function TimeTable() {
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 
   return (
     <section>
@@ -13,8 +14,8 @@ export default function TimeTable() {
           <TopBar />
         </div>
         <div className="flex flex-row mt-[80px]">
-          <SideBar selectedColor={selectedColor} onSelectColor={setSelectedColor} />
-          <WeekHours selectedColor={selectedColor} />
+          <SideBar selectedSubject={selectedSubject} onSelectSubject={setSelectedSubject} />
+          <WeekHours selectedSubject={selectedSubject} />
         </div>
     </section>
   )
