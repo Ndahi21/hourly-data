@@ -1,30 +1,95 @@
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import { Subject } from './HourColors';
 
 type WeekHoursProps = {
-  selectedColor: string;
+  selectedSubject: Subject | null;
 };
 
-export default function WeekHours({ selectedColor }: WeekHoursProps) {
-  const [paintedHours, setPaintedHours] = useState<Record<string, string>>({});
+type HourAssignment = {
+  color: string;
+  subjectName: string;
+};
+
+export default function WeekHours({ selectedSubject }: WeekHoursProps) {
+  const [paintedHours, setPaintedHours] = useState<Record<string, HourAssignment>>({});
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const startDate = dayjs('2026-01-17');
 
   const today = dayjs();
-  const deliveryDate = today.format('DD');
 
   const daysSinceStart = today.diff(startDate, "day");   
   const weeksSinceStart = Math.floor(daysSinceStart / 7);
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
+  const weekStartDate = currentWeekStart.format('YYYY-MM-DD');
+
+  const persistHourBox = async (dayIndex: number, hourIndex: number, subject: Subject) => {
+    const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
+
+    try {
+      await fetch('/api/hour', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date,
+          hour: hourIndex,
+          subjectName: subject.name,
+          color: subject.color,
+        }),
+      });
+    } catch {
+      // Keep UI responsive when API is offline.
+    }
+  };
 
   const paintHourBox = (dayIndex: number, hourIndex: number) => {
+    if (!selectedSubject) {
+      return;
+    }
+
     const key = `${dayIndex}-${hourIndex}`;
     setPaintedHours((prev) => ({
       ...prev,
-      [key]: selectedColor,
+      [key]: { color: selectedSubject.color, subjectName: selectedSubject.name },
     }));
+
+    persistHourBox(dayIndex, hourIndex, selectedSubject);
   };
+
+  useEffect(() => {
+    const loadWeek = async () => {
+      try {
+        const response = await fetch(`/api/week?startDate=${weekStartDate}`);
+        if (!response.ok) {
+          return;
+        }
+
+        const data: {
+          entries: Array<{ date: string; hour: number; subjectName: string; color: string }>;
+        } = await response.json();
+
+        const mapped: Record<string, HourAssignment> = {};
+        data.entries.forEach((entry) => {
+          const dayIndex = dayjs(entry.date).diff(currentWeekStart, 'day');
+          if (dayIndex < 0 || dayIndex > 6) {
+            return;
+          }
+
+          mapped[`${dayIndex}-${entry.hour}`] = {
+            color: entry.color,
+            subjectName: entry.subjectName,
+          };
+        });
+
+        setPaintedHours(mapped);
+      } catch {
+        // Keep local in-memory state when API is offline.
+      }
+    };
+
+    loadWeek();
+  }, [weekStartDate]);
 
   // User clicks then slides down to paint multiple hours:
   const [isPainting, setIsPainting] = useState(false);
@@ -101,11 +166,11 @@ export default function WeekHours({ selectedColor }: WeekHoursProps) {
               <div
                 key={hourIndex}
                 className="w-[100px] h-[30px] border border-solid border-[#333333] flex items-center justify-center cursor-pointer"
-                style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`] ?? '#ffffff' }}
+                style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`]?.color ?? '#ffffff' }}
                 onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
                 onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}
                 onMouseUp={() => setIsPainting(false)}
-                title={`${day} - ${hourIndex}:00`}
+                title={paintedHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
               />
             ))}
           </div>
