@@ -24,25 +24,6 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
   const weekStartDate = currentWeekStart.format('YYYY-MM-DD');
 
-  const persistHourBox = async (dayIndex: number, hourIndex: number, subject: Subject) => {
-    const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
-
-    try {
-      await fetch('/api/hour', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date,
-          hour: hourIndex,
-          subjectName: subject.name,
-          color: subject.color,
-        }),
-      });
-    } catch {
-      // Keep UI responsive when API is offline.
-    }
-  };
-
   const paintHourBox = (dayIndex: number, hourIndex: number) => {
     if (!selectedSubject) {
       return;
@@ -53,42 +34,29 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
       ...prev,
       [key]: { color: selectedSubject.color, subjectName: selectedSubject.name },
     }));
-
-    persistHourBox(dayIndex, hourIndex, selectedSubject);
   };
 
+  // Auto-save to localStorage whenever painted hours change
   useEffect(() => {
-    const loadWeek = async () => {
+    if (Object.keys(paintedHours).length > 0) {
+      localStorage.setItem(`week-${weekStartDate}`, JSON.stringify(paintedHours));
+    }
+  }, [paintedHours, weekStartDate]);
+
+  useEffect(() => {
+    // Load from localStorage until SQL is implemented
+    const savedData = localStorage.getItem(`week-${weekStartDate}`);
+    if (savedData) {
       try {
-        const response = await fetch(`/api/week?startDate=${weekStartDate}`);
-        if (!response.ok) {
-          return;
-        }
-
-        const data: {
-          entries: Array<{ date: string; hour: number; subjectName: string; color: string }>;
-        } = await response.json();
-
-        const mapped: Record<string, HourAssignment> = {};
-        data.entries.forEach((entry) => {
-          const dayIndex = dayjs(entry.date).diff(currentWeekStart, 'day');
-          if (dayIndex < 0 || dayIndex > 6) {
-            return;
-          }
-
-          mapped[`${dayIndex}-${entry.hour}`] = {
-            color: entry.color,
-            subjectName: entry.subjectName,
-          };
-        });
-
-        setPaintedHours(mapped);
+        const parsed = JSON.parse(savedData);
+        setPaintedHours(parsed);
       } catch {
-        // Keep local in-memory state when API is offline.
+        // Invalid data, start fresh
+        setPaintedHours({});
       }
-    };
-
-    loadWeek();
+    } else {
+      setPaintedHours({});
+    }
   }, [weekStartDate]);
 
   // User clicks then slides down to paint multiple hours:
