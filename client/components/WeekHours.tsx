@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Subject } from './HourColors';
@@ -85,8 +86,10 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   return (
     <div className="p-[20px] pl-[340px]">
       <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-red-500 flex">
-        <div className="text-transparent w-[40px]">
-          .
+        <div className="justify-center w-[40px] flex items-center">
+          <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
+            <ChevronLeft className="w-[24px] h-[24px] hover:cursor-pointer hover:scale-110" />
+          </div>
         </div>
         {days.map((day, dayIndex) => (
           <div key={dayIndex} className="w-[100px]">
@@ -98,6 +101,11 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
             </h3>
           </div>
         ))}
+        <div className="justify-center w-[40px] flex items-center">
+          <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
+            <ChevronRight className="w-[24px] h-[24px] hover:cursor-pointer hover:scale-110" />
+          </div>
+        </div>
       </div>
 
       <div className="pt-[4px] flex flex-row">
