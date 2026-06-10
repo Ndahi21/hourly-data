@@ -85,7 +85,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   
   return (
     <div className="p-[20px] pl-[340px]">
-      <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-red-500 flex">
+      <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-white flex">
         <div className="justify-center w-[40px] flex items-center">
           <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
             <ChevronLeft className="w-[24px] h-[24px] hover:cursor-pointer hover:scale-110" />
@@ -141,7 +141,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
             {Array.from({ length: 24 }, (_, hourIndex) => (
               <div
                 key={hourIndex}
-                className="w-[100px] h-[30px] border border-solid border-[#333333] flex items-center justify-center cursor-pointer"
+                className="w-[100px] h-[30px] border border-solid border-black flex items-center justify-center cursor-pointer"
                 style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`]?.color ?? '#ffffff' }}
                 onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
                 onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}

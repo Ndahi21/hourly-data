@@ -6,10 +6,10 @@ const defaultSubjects: Subject[] = [
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },
   { name: 'Work', color: '#926828' },
-  { name: 'Art', color: '#ff0000' },
-  { name: 'Writing', color: '#7011be' },
+  { name: 'Art', color: '#e60000' },
+  { name: 'Organization', color: '#07037c' },
   { name: 'Computer Science', color: '#2a05ff' },
-  { name: 'Exercise', color: '#12d401' },
+  { name: 'Exercise', color: '#10c500' },
 ];
 
 const colorChoices = [
