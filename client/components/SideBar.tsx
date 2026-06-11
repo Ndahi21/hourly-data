@@ -120,13 +120,13 @@ export default function SideBar({ selectedSubject, onSelectSubject }: SideBarPro
           + Add Subject
         </button>
 
-        <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+        <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
           <Clock className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine</p>
+          <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine</p>
         </div>
-        <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+        <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
           <Calendar className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
+          <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
         </div>
       </div>
       </div>

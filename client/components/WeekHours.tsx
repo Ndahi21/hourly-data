@@ -87,8 +87,8 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     <div className="p-[20px] pl-[340px]">
       <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-white flex">
         <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
-            <ChevronLeft className="w-[24px] h-[24px] hover:cursor-pointer hover:scale-110" />
+          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 rounded-full w-[40px] h-[40px] flex items-center justify-center">
+            <ChevronLeft className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
           </div>
         </div>
         {days.map((day, dayIndex) => (
@@ -102,8 +102,8 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
           </div>
         ))}
         <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
-            <ChevronRight className="w-[24px] h-[24px] hover:cursor-pointer hover:scale-110" />
+          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 rounded-full w-[40px] h-[40px] flex items-center justify-center">
+            <ChevronRight className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
           </div>
         </div>
       </div>
