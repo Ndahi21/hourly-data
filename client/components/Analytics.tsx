@@ -8,7 +8,7 @@ export default function Analytics() {
     <>
       {/* Tall vertical bar with chevron */}
       <div 
-        className={`fixed top-[100px] w-[40px] h-[calc(100vh-80px)] bg-gray-200 hover:bg-gray-300 cursor-pointer flex items-center justify-center z-[999] transition-all ${
+        className={`fixed top-[100px] w-[40px] h-[calc(100vh-80px)] bg-gray-200 hover:bg-gray-300 cursor-pointer flex items-center justify-center z-[999] duration-700 transition-all ${
           isOpen ? 'right-[380px]' : 'right-0'
         }`}
         onClick={() => setIsOpen(!isOpen)}

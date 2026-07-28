@@ -87,7 +87,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     <div className="p-[20px] pl-[340px]">
       <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-white flex">
         <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 rounded-full w-[40px] h-[40px] flex items-center justify-center">
+          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center">
             <ChevronLeft className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
           </div>
         ))}
         <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 rounded-full w-[40px] h-[40px] flex items-center justify-center">
+          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center">
             <ChevronRight className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
           </div>
         </div>
