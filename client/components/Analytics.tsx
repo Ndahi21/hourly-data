@@ -33,7 +33,7 @@ export default function Analytics() {
           </div>
           {/* Be a visual representation of the data */}
           <div className="w-[300px] h-[200px] my-[10px] bg-gray-300"></div>
-          <div className="flex flex-row items-center justify-center border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[300px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+          <div className="flex flex-row items-center justify-center border border-[2px] border-solid border-[#777777] p-[10px] text-center bg-white cursor-pointer mt-[12px] w-[300px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
             <Expand className="w-[20px] h-[20px] mr-[8px]" />
             <p>Expand Analytics</p>
           </div>
