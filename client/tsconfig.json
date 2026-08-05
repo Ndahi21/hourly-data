@@ -22,5 +22,5 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["client", "server"]
+  "include": ["src", "components", "pages"]
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Expand, Trash } from 'lucide-react';
 
 export type Subject = {

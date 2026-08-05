@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import WeekHours from '../components/WeekHours';
 import SideBar from '../components/SideBar';

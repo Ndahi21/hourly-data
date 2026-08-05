@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import HourColors, { Subject } from './HourColors';
 import { Calendar, Clock } from 'lucide-react';
 
