@@ -24,7 +24,7 @@ export default function Analytics() {
       {isOpen && (
         <div className="fixed top-[40px] right-0 w-[380px] h-[calc(120vh-80px)] bg-gray-100 p-[20px] z-[1000]">
           <div className="flex flex-row items-center mb-[20px]">
-            <img src="/images/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
+            <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
             <h2 className="text-[22px] font-bold">Analytics</h2>
           </div>
           {/* Be a simple table of subjects and hours */}
