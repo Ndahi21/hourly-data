@@ -13,7 +13,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/subjects', (_req, res) => {
-  const subjects = db.prepare('SELECT name, color FROM subjects ORDER BY id ASC').all();
+  const subjects = db.prepare('SELECT id, name, color FROM subjects ORDER BY id ASC').all();
   res.json({ subjects });
 });
 
@@ -32,41 +32,44 @@ app.post('/api/subjects', (req, res) => {
   }
 
   try {
-    db.prepare('INSERT INTO subjects (name, color) VALUES (?, ?)').run(cleanName, cleanColor);
-    return res.status(201).json({ subject: { name: cleanName, color: cleanColor } });
+    const result = db.prepare('INSERT INTO subjects (name, color) VALUES (?, ?)').run(cleanName, cleanColor);
+    return res.status(201).json({ subject: { id: result.lastInsertRowid, name: cleanName, color: cleanColor } });
   } catch (error) {
     return res.status(409).json({ error: 'subject already exists' });
   }
 });
 
 app.put('/api/hour', (req, res) => {
-  const { date, hour, subjectName, color } = req.body ?? {};
+  const { date, hour, subjectId } = req.body ?? {};
 
-  if (!date || hour === undefined || !subjectName || !color) {
-    return res.status(400).json({ error: 'date, hour, subjectName, and color are required' });
+  if (!date || hour === undefined || !subjectId) {
+    return res.status(400).json({ error: 'date, hour, and subjectId are required' });
   }
 
   const numericHour = Number(hour);
+  const numericSubjectId = Number(subjectId);
   const cleanDate = String(date);
-  const cleanSubjectName = String(subjectName).trim();
-  const cleanColor = String(color).trim();
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || Number.isNaN(numericHour) || numericHour < 0 || numericHour > 23) {
     return res.status(400).json({ error: 'invalid date or hour' });
   }
 
-  if (!cleanSubjectName || !/^#[0-9a-fA-F]{6}$/.test(cleanColor)) {
-    return res.status(400).json({ error: 'invalid subjectName or color format' });
+  if (Number.isNaN(numericSubjectId)) {
+    return res.status(400).json({ error: 'invalid subjectId' });
+  }
+
+  // Verify subject exists
+  const subject = db.prepare('SELECT id FROM subjects WHERE id = ?').get(numericSubjectId);
+  if (!subject) {
+    return res.status(404).json({ error: 'subject not found' });
   }
 
   db.prepare(`
-    INSERT INTO hour_entries (date, hour, subject_name, color, updated_at)
-    VALUES (?, ?, ?, ?, datetime('now'))
+    INSERT INTO hour_entries (date, hour, subject_id)
+    VALUES (?, ?, ?)
     ON CONFLICT(date, hour) DO UPDATE SET
-      subject_name = excluded.subject_name,
-      color = excluded.color,
-      updated_at = datetime('now')
-  `).run(cleanDate, numericHour, cleanSubjectName, cleanColor);
+      subject_id = excluded.subject_id
+  `).run(cleanDate, numericHour, numericSubjectId);
 
   return res.json({ saved: true });
 });
@@ -81,11 +84,17 @@ app.get('/api/week', (req, res) => {
   const start = String(startDate);
 
   const entries = db.prepare(`
-    SELECT date, hour, subject_name AS subjectName, color
-    FROM hour_entries
-    WHERE date >= date(?)
-      AND date < date(?, '+7 day')
-    ORDER BY date ASC, hour ASC
+    SELECT 
+      h.date,
+      h.hour,
+      s.name AS subjectName,
+      s.color,
+      s.id AS subjectId
+    FROM hour_entries h
+    JOIN subjects s ON h.subject_id = s.id
+    WHERE h.date >= date(?)
+      AND h.date < date(?, '+7 day')
+    ORDER BY h.date ASC, h.hour ASC
   `).all(start, start);
 
   return res.json({ entries });

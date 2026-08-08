@@ -19,14 +19,19 @@ db.exec(`
     color TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+`);
 
-  CREATE TABLE IF NOT EXISTS hour_entries (
+// Drop old hour_entries table if it exists (schema migration)
+db.exec('DROP TABLE IF EXISTS hour_entries');
+
+db.exec(`
+  CREATE TABLE hour_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
-    subject_name TEXT NOT NULL,
-    color TEXT NOT NULL,
-    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    PRIMARY KEY (date, hour)
+    subject_id INTEGER NOT NULL REFERENCES subjects(id),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(date, hour)
   );
 `);
 
