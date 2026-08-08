@@ -33,7 +33,6 @@ db.exec(`
 `);
 
 const defaultSubjects = [
-  { name: 'Erase', color: '#ffffff' },
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },
   { name: 'Work', color: '#926828' },
@@ -48,5 +47,8 @@ const seedSubjects = db.transaction((subjects) => {
   subjects.forEach((subject) => seedStmt.run(subject.name, subject.color));
 });
 seedSubjects(defaultSubjects);
+
+// Migration: Delete "Erase" from database (it's frontend-only)
+db.prepare('DELETE FROM subjects WHERE name = ?').run('Erase');
 
 export default db;

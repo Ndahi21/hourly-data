@@ -40,7 +40,7 @@ type SideBarProps = {
 };
 
 export default function SideBar({ selectedSubject, onSelectSubject }: SideBarProps) {
-  const [subjects, setSubjects] = useState<Subject[]>(defaultSubjects);
+  const [subjects, setSubjects] = useState<Subject[]>([{ name: 'Erase', color: '#ffffff' }, ...defaultSubjects]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
   const [newSubjectColor, setNewSubjectColor] = useState(colorChoices[0]);
