@@ -83,6 +83,29 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     }
   };
 
+  const eraseHourBox = async (dayIndex: number, hourIndex: number) => {
+    const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
+    const key = `${dayIndex}-${hourIndex}`;
+
+    // Optimistically update UI
+    setPaintedHours((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+
+    // Delete from backend
+    try {
+      await fetch('/api/hour', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, hour: hourIndex }),
+      });
+    } catch (error) {
+      console.error('Failed to delete hour:', error);
+    }
+  };
+
   // Load week data from backend
   useEffect(() => {
     const loadWeekData = async () => {
@@ -205,6 +228,10 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                 onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
                 onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}
                 onMouseUp={() => setIsPainting(false)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  eraseHourBox(dayIndex, hourIndex);
+                }}
                 title={paintedHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
               />
             ))}

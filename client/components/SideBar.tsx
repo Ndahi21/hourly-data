@@ -55,7 +55,9 @@ export default function SideBar({ selectedSubject, onSelectSubject }: SideBarPro
 
         const data: { subjects: Subject[] } = await response.json();
         if (data.subjects.length > 0) {
-          setSubjects(data.subjects);
+          // Always prepend "Erase" as a frontend-only tool
+          const subjectsWithErase = [{ name: 'Erase', color: 'white' }, ...data.subjects];
+          setSubjects(subjectsWithErase);
           onSelectSubject(data.subjects[0]);
         }
       } catch {
