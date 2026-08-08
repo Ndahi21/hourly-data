@@ -1,6 +1,7 @@
 import { Expand, Trash } from 'lucide-react';
 
 export type Subject = {
+  id?: number;
   name: string;
   color: string;
 };

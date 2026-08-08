@@ -74,6 +74,25 @@ app.put('/api/hour', (req, res) => {
   return res.json({ saved: true });
 });
 
+app.delete('/api/hour', (req, res) => {
+  const { date, hour } = req.body ?? {};
+
+  if (!date || hour === undefined) {
+    return res.status(400).json({ error: 'date and hour are required' });
+  }
+
+  const numericHour = Number(hour);
+  const cleanDate = String(date);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || Number.isNaN(numericHour) || numericHour < 0 || numericHour > 23) {
+    return res.status(400).json({ error: 'invalid date or hour' });
+  }
+
+  db.prepare('DELETE FROM hour_entries WHERE date = ? AND hour = ?').run(cleanDate, numericHour);
+
+  return res.json({ deleted: true });
+});
+
 app.get('/api/week', (req, res) => {
   const { startDate } = req.query;
 

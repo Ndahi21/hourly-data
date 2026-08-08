@@ -40,7 +40,7 @@ const defaultSubjects = [
   { name: 'Social', color: '#aef6ff' },
   { name: 'Work', color: '#926828' },
   { name: 'Art', color: '#ff0000' },
-  { name: 'University', color: '#7011be' },
+  { name: 'Maintenance', color: '#07037c' },
   { name: 'Computer Science', color: '#2a05ff' },
   { name: 'Exercise', color: '#12d401' },
 ];
