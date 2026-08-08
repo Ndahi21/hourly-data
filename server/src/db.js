@@ -21,11 +21,8 @@ db.exec(`
   );
 `);
 
-// Drop old hour_entries table if it exists (schema migration)
-db.exec('DROP TABLE IF EXISTS hour_entries');
-
 db.exec(`
-  CREATE TABLE hour_entries (
+  CREATE TABLE IF NOT EXISTS hour_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
@@ -36,6 +33,7 @@ db.exec(`
 `);
 
 const defaultSubjects = [
+  { name: 'Erase', color: '#ffffff' },
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },
   { name: 'Work', color: '#926828' },

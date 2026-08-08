@@ -3,7 +3,7 @@ import HourColors, { Subject } from './HourColors';
 import { Calendar, Clock } from 'lucide-react';
 
 const defaultSubjects: Subject[] = [
-  { name: 'Erase', color: 'white' },
+  { name: 'Erase', color: '#ffffff' },
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },
   { name: 'Work', color: '#926828' },
