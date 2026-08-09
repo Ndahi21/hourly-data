@@ -15,6 +15,7 @@ type HourAssignment = {
 
 export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   const [paintedHours, setPaintedHours] = useState<Record<string, HourAssignment>>({});
+  const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, +1 = next week
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const startDate = dayjs('2026-01-17');
@@ -23,7 +24,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
 
   const daysSinceStart = today.diff(startDate, "day");   
   const weeksSinceStart = Math.floor(daysSinceStart / 7);
-  const currentWeekStart = startDate.add(weeksSinceStart * 7, "day");
+  const currentWeekStart = startDate.add((weeksSinceStart + weekOffset) * 7, "day");
   const weekStartDate = currentWeekStart.format('YYYY-MM-DD');
 
   const paintHourBox = async (dayIndex: number, hourIndex: number) => {
@@ -164,33 +165,61 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
+
+  const goToPreviousWeek = () => {
+    setWeekOffset((prev) => prev - 1);
+  };
+
+  const goToNextWeek = () => {
+    setWeekOffset((prev) => prev + 1);
+  };
+
+  const getWeekLabel = () => {
+    if (weekOffset === 0) return 'This Week';
+    if (weekOffset === -1) return 'Last Week';
+    if (weekOffset === 1) return 'Next Week';
+    if (weekOffset < 0) return `${Math.abs(weekOffset)} Weeks Ago`;
+    return `${weekOffset} Weeks Ahead`;
+  };
   
   return (
     <div className="p-[20px] pl-[340px]">
-      <div className="fixed top-[36px] left-[340px] right-0 z-50 bg-white flex">
-        <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center">
-            <ChevronLeft className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
-          </div>
+      <div className="fixed top-[28px] left-[340px] right-0 z-50 bg-white">
+        {/* Week navigation header with label */}
+        <div className="flex items-center justify-center mb-[8px]">
+          <span className="text-[14px] font-semibold text-gray-600">{getWeekLabel()}</span>
         </div>
-        {days.map((day, dayIndex) => (
-          <div key={dayIndex} className="w-[100px]">
-            <h3 className="text-[16px] mb-[2px] flex justify-center">
-              {day}
-            </h3>
-            <h3 className="text-[18px] font-bold mb-[10px] flex justify-center">
-              {currentWeekStart.add(dayIndex, "day").format('MMM DD')}
-            </h3>
+        <div className="flex">
+          <div className="justify-center w-[40px] flex items-center">
+            <div 
+              onClick={goToPreviousWeek}
+              className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center"
+            >
+              <ChevronLeft className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
+            </div>
           </div>
-        ))}
-        <div className="justify-center w-[40px] flex items-center">
-          <div className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center">
+          {days.map((day, dayIndex) => (
+            <div key={dayIndex} className="w-[100px]">
+              <h3 className="text-[16px] mb-[2px] flex justify-center">
+                {day}
+              </h3>
+              <h3 className="text-[18px] font-bold mb-[10px] flex justify-center">
+                {currentWeekStart.add(dayIndex, "day").format('MMM DD')}
+              </h3>
+            </div>
+          ))}
+          <div className="justify-center w-[40px] flex items-center">
+            <div 
+              onClick={goToNextWeek}
+              className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center"
+            >
             <ChevronRight className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
           </div>
         </div>
+        </div>
       </div>
 
-      <div className="pt-[4px] flex flex-row">
+      <div className="pt-[24px] flex flex-row">
         <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
           <div>1 am</div>
           <div>2 am</div>
