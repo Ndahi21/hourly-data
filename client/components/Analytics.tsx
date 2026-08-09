@@ -18,11 +18,19 @@ interface WeeklyBreakdownData {
 }
 
 // Custom tooltip that renders via portal to body
-const PortalTooltip = ({ active, payload, label, subjectColors, coordinate }: any) => {
+const PortalTooltip = ({ active, payload, label, subjectColors, coordinate, chartId }: any) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
 
-  // Get the chart container position to calculate absolute screen coordinates
-  const chartWrapper = document.querySelector('.recharts-wrapper');
+  // Get the specific chart container position to calculate absolute screen coordinates
+  const allChartWrappers = document.querySelectorAll('.recharts-wrapper');
+  let chartWrapper = null;
+  
+  if (chartId === 'line') {
+    chartWrapper = allChartWrappers[0]; // First chart is line chart
+  } else if (chartId === 'bar') {
+    chartWrapper = allChartWrappers[1]; // Second chart is bar chart
+  }
+  
   let screenX = coordinate.x;
   let screenY = coordinate.y;
   
@@ -34,9 +42,9 @@ const PortalTooltip = ({ active, payload, label, subjectColors, coordinate }: an
 
   const tooltipContent = (
     <div 
-      className="fixed bg-white border border-gray-300 rounded-[4px] p-[8px] shadow-lg pointer-events-none"
+      className="fixed bg-white border border-gray-300 rounded-[4px] p-[12px] px-[16px] shadow-lg pointer-events-none"
       style={{ 
-        left: `${screenX - 300}px`,
+        left: `${screenX - 340}px`,
         top: `${screenY - 20}px`,
         zIndex: 999999,
         transform: 'translateY(-50%)'
@@ -44,9 +52,10 @@ const PortalTooltip = ({ active, payload, label, subjectColors, coordinate }: an
     >
       <p className="text-[12px] font-semibold mb-[4px] text-gray-700">{label}</p>
       {payload.map((entry: any, index: number) => (
-        <p key={index} className="text-[12px]">
+        <p key={index} className="text-[12px] text-black">
+          <span style={{ color: entry.color, marginRight: '8px', fontSize: '16px' }}>●</span>
           <span className="text-black">{entry.name}:</span>{' '}
-          <span style={{ color: subjectColors.get(entry.name) || entry.color, fontWeight: 'bold' }}>
+          <span style={{ fontWeight: 'bold'}}>
             {entry.value} hrs
           </span>
         </p>
@@ -197,7 +206,7 @@ export default function Analytics() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" style={{ fontSize: '12px' }} />
                     <YAxis style={{ fontSize: '12px' }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} />} />
+                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="line" />} />
                     {uniqueSubjects().map((subject) => (
                       <Line
                         key={subject.name}
@@ -220,7 +229,7 @@ export default function Analytics() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" style={{ fontSize: '12px' }} />
                     <YAxis style={{ fontSize: '12px' }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} />} />
+                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="bar" />} />
                     {sortedSubjectsForStack().map((subject) => (
                       <Bar
                         key={subject.name}
