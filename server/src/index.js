@@ -119,6 +119,59 @@ app.get('/api/week', (req, res) => {
   return res.json({ entries });
 });
 
+// Analytics endpoint: Get hours per subject for the last N weeks
+app.get('/api/analytics/weekly-trend', (req, res) => {
+  const { weeks = 8 } = req.query;
+  const numWeeks = Math.min(Math.max(parseInt(weeks), 1), 52); // Between 1-52 weeks
+
+  // Calculate the start date (numWeeks * 7 days ago)
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (numWeeks * 7));
+  const startDateStr = startDate.toISOString().split('T')[0];
+
+  const data = db.prepare(`
+    SELECT 
+      DATE(h.date, 'weekday 0', '-6 days') as weekStart,
+      s.name as subject,
+      s.color,
+      COUNT(*) as hours
+    FROM hour_entries h
+    JOIN subjects s ON h.subject_id = s.id
+    WHERE h.date >= ?
+      AND s.name != 'Sleep'
+    GROUP BY weekStart, s.name, s.color
+    ORDER BY weekStart ASC, s.name ASC
+  `).all(startDateStr);
+
+  return res.json({ data });
+});
+
+// Analytics endpoint: Get stacked bar chart data (hours per subject per week)
+app.get('/api/analytics/weekly-breakdown', (req, res) => {
+  const { weeks = 8 } = req.query;
+  const numWeeks = Math.min(Math.max(parseInt(weeks), 1), 52);
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (numWeeks * 7));
+  const startDateStr = startDate.toISOString().split('T')[0];
+
+  const data = db.prepare(`
+    SELECT 
+      DATE(h.date, 'weekday 0', '-6 days') as weekStart,
+      s.name as subject,
+      s.color,
+      COUNT(*) as hours
+    FROM hour_entries h
+    JOIN subjects s ON h.subject_id = s.id
+    WHERE h.date >= ?
+      AND s.name != 'Sleep'
+    GROUP BY weekStart, s.name, s.color
+    ORDER BY weekStart ASC, hours DESC
+  `).all(startDateStr);
+
+  return res.json({ data });
+});
+
 app.listen(PORT, () => {
   console.log(`SQLite API running on http://localhost:${PORT}`);
 });
