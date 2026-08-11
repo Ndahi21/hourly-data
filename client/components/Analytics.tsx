@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import dayjs from 'dayjs';
+import ExpandAnalytics from './ExpandAnalytics';
 
 interface WeeklyTrendData {
   weekStart: string;
@@ -69,6 +70,7 @@ const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => 
 
 export default function Analytics() {
   const [isOpen, setIsOpen] = useState(true);
+  const [isExpandedOpen, setIsExpandedOpen] = useState(false);
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,7 +245,10 @@ export default function Analytics() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="flex flex-row items-center justify-center border border-[2px] border-solid border-[#777777] p-[10px] text-center bg-white cursor-pointer mt-[12px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+              <div 
+                onClick={() => setIsExpandedOpen(true)}
+                className="flex flex-row items-center justify-center border border-[2px] border-solid border-[#777777] p-[10px] text-center bg-white cursor-pointer mt-[12px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
+              >
                 <Expand className="w-[20px] h-[20px] mr-[8px]" />
                 <p>Expand Analytics</p>
               </div>
@@ -251,6 +256,9 @@ export default function Analytics() {
           )}
         </div>
       )}
+
+      {/* Expanded Analytics Modal */}
+      <ExpandAnalytics isOpen={isExpandedOpen} onClose={() => setIsExpandedOpen(false)} />
     </>
   );
 }

@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dayjs from 'dayjs';
+import { X } from 'lucide-react';
+
+interface WeeklyTrendData {
+  weekStart: string;
+  subject: string;
+  color: string;
+  hours: number;
+}
+
+interface WeeklyBreakdownData {
+  weekStart: string;
+  subject: string;
+  color: string;
+  hours: number;
+}
 
 const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
@@ -24,14 +40,40 @@ const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => 
     screenY = rect.top + coordinate.y;
   }
 
+  const tooltipContent = (
+    <div 
+      className="fixed bg-white border border-gray-300 rounded-[4px] p-[8px] shadow-lg pointer-events-none"
+      style={{ 
+        left: `${screenX - 300}px`,
+        top: `${screenY - 20}px`,
+        zIndex: 999999,
+        transform: 'translateY(-50%)'
+      }}
+    >
+      <p className="text-[12px] font-semibold mb-[4px] text-gray-700">{label}</p>
+      {payload.map((entry: any, index: number) => (
+        <p key={index} className="text-[12px]">
+          <span className="text-black">{entry.name}:</span>{' '}
+          <span style={{ color: entry.color, fontWeight: 'bold' }}>
+            {entry.value} hrs
+          </span>
+        </p>
+      ))}
+    </div>
+  );
+
   return createPortal(tooltipContent, document.body);
 }
 
-export default function ExpandAnalytics() {
-  const [isOpen, setIsOpen] = useState(false);
+interface ExpandAnalyticsProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProps) {
   const [loading, setLoading] = useState(false);
-  const [trendData, setTrendData] = useState([]);
-  const [breakdownData, setBreakdownData] = useState([]);
+  const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
+  const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -117,87 +159,111 @@ export default function ExpandAnalytics() {
       .map(([name, data]) => ({ name, color: data.color }));
   };
 
-  // Get subject color map for tooltip
-  const getSubjectColorMap = () => {
-    const colorMap = new Map<string, string>();
-    [...trendData, ...breakdownData].forEach(item => {
-      colorMap.set(item.subject, item.color);
-    });
-    return colorMap;
+  const formatWeekLabel = (dateStr: string) => {
+    const date = dayjs(dateStr);
+    return `${date.month() + 1}/${date.date()}`;
   };
 
   return (
     <>
       {isOpen && (
-        <div className="fixed p-[20px] py-[10px] w-[100%] h-[100%] bg-white z-[10000]">
-          <div className="flex flex-row items-center mb-[12px]">
-            <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
-            <h2 className="text-[22px] font-bold">Analytics</h2>
+        <div className="fixed inset-0 bg-white z-[10000] overflow-y-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between p-[20px] border-b border-gray-300">
+            <div className="flex items-center">
+              <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
+              <h2 className="text-[22px] font-bold">Analytics</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-[8px] hover:bg-gray-100 rounded-[4px] transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-[24px] h-[24px]" />
+            </button>
           </div>
 
           {loading ? (
             <div className="text-center py-[40px] text-gray-600">Loading analytics...</div>
           ) : (
-            <>
-              {/* Line Chart - Hours Trend Over Weeks */}
-              <div className="bg-white p-[15px] py-[10px] rounded-[8px] mb-[10px] shadow-sm">
-                <h3 className="text-[16px] font-semibold mb-[10px]">Hourly Trends</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={lineChartData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" style={{ fontSize: '12px' }} label={{ value: 'Week', position: 'insideBottom', offset: -5 }} />
-                    <YAxis style={{ fontSize: '12px' }} label={{ value: 'Hours', angle: -90, position: 'insideLeft', offset: 10 }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="line" />} />
-                    {uniqueSubjects().map((subject) => (
-                      <Line
-                        key={subject.name}
-                        type="monotone"
-                        dataKey={subject.name}
-                        stroke={subject.color}
-                        strokeWidth={2}
-                        dot={{ fill: subject.color }}
+            <div className="flex">
+              {/* Legend Sidebar - Left Side */}
+              <div className="w-[220px] p-[20px] border-r border-gray-300 bg-gray-50">
+                <h3 className="text-[14px] font-bold mb-[12px]">Subjects by Hours</h3>
+                <div className="space-y-[6px]">
+                  {sortedSubjectsForStack().map((subject) => (
+                    <div key={subject.name} className="flex items-center gap-[8px]">
+                      <span 
+                        className="w-[16px] h-[16px] rounded-[3px] flex-shrink-0"
+                        style={{ backgroundColor: subject.color }}
                       />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
+                      <span className="text-[13px] text-gray-800">{subject.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Stacked Bar Chart - Hours Breakdown per Week */}
-              <div className="bg-white p-[15px] py-[10px] rounded-[8px] mb-[10px] shadow-sm">
-                <h3 className="text-[16px] font-semibold mb-[10px]">Subject Prominence</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={barChartData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" style={{ fontSize: '12px' }} label={{ value: 'Week', position: 'insideBottom', offset: -5 }} />
-                    <YAxis style={{ fontSize: '12px' }} label={{ value: 'Hours', angle: -90, position: 'insideLeft', offset: 10 }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="bar" />} />
-                    {sortedSubjectsForStack().map((subject) => (
-                      <Bar
-                        key={subject.name}
-                        dataKey={subject.name}
-                        stackId="a"
-                        fill={subject.color}
+              {/* Charts Area */}
+              <div className="flex-1 p-[20px]">
+                {/* Line Chart - Hours Trend Over Weeks */}
+                <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
+                  <h3 className="text-[18px] font-semibold mb-[16px]">Hourly Trends</h3>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={lineChartData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="week" 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -5 }} 
                       />
-                    ))}
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+                      <YAxis 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
+                      />
+                      <Tooltip content={(props) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="line" />} />
+                      {uniqueSubjects().map((subject) => (
+                        <Line
+                          key={subject.name}
+                          type="monotone"
+                          dataKey={subject.name}
+                          stroke={subject.color}
+                          strokeWidth={2}
+                          dot={{ fill: subject.color }}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
 
-              {/* Legend for Charts: All subject colors are on the left in order of hours */}
-              <div 
-                className="fixed bg-white border border-gray-300 rounded-[4px] p-[12px] px-[16px] shadow-lg pointer-events-none">
-                <p className="text-[12px] font-semibold mb-[4px] text-gray-700">{label}</p>
-                {payload.map((entry: any, index: number) => (
-                  <p key={index} className="text-[12px] text-black">
-                    <span style={{ color: entry.color, marginRight: '8px', fontSize: '16px' }}>●</span>
-                    <span className="text-black">{entry.name}:</span>{' '}
-                    <span style={{ fontWeight: 'bold'}}>
-                      {entry.value} hrs
-                    </span>
-                  </p>
-                ))}
+                {/* Stacked Bar Chart - Hours Breakdown per Week */}
+                <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
+                  <h3 className="text-[18px] font-semibold mb-[16px]">Subject Prominence</h3>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={barChartData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="week" 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -5 }} 
+                      />
+                      <YAxis 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
+                      />
+                      <Tooltip content={(props) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
+                      {sortedSubjectsForStack().map((subject) => (
+                        <Bar
+                          key={subject.name}
+                          dataKey={subject.name}
+                          stackId="a"
+                          fill={subject.color}
+                        />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}
