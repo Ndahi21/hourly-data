@@ -14,24 +14,30 @@ const defaultSubjects: Subject[] = [
 ];
 
 const colorChoices = [
+  // Default Theme
+  '#926828',
+  '#e60000',
+  '#07037c',
+  '#2a05ff',
+  '#10c500',
   // Picnic Theme
   '#4336a8',
   '#bbe6ff',
   '#3e9955',
   '#ddef8d',
   '#d40101',
-  // SpeechPod Theme
-  '#ff6f61',
-  '#6b5b95',
-  '#88b04b',
-  '#f7cac9',
-  '#92a8d1',
   // Material Design Theme
   '#e57373',
   '#64b5f6',
   '#81c784',
   '#ffb74d',
   '#4db6ac',
+];
+
+const colorThemes = [
+  'Default',
+  'Picnic',
+  'Material',
 ];
 
 type SideBarProps = {
@@ -134,8 +140,8 @@ export default function SideBar({ selectedSubject, onSelectSubject }: SideBarPro
       </div>
 
       {isAddOpen && (
-        <div className="fixed inset-0 z-[2000] bg-black/35 flex items-center justify-center px-[12px]">
-          <div className="bg-white border border-gray-400 rounded-[8px] p-[16px] w-[420px] shadow-lg">
+        <div className="fixed inset-0 z-[10000] bg-black/35 flex items-center justify-center px-[12px]">
+          <div className="bg-white border border-gray-400 rounded-[8px] p-[16px] px-[24px] w-[520px] shadow-lg">
             <h2 className="text-[18px] font-bold mb-[10px]">Add Subject</h2>
 
             <label className="text-[14px] font-semibold">Subject Name</label>
@@ -143,26 +149,30 @@ export default function SideBar({ selectedSubject, onSelectSubject }: SideBarPro
               type="text"
               value={newSubjectName}
               onChange={(event) => setNewSubjectName(event.target.value)}
-              className="border border-gray-400 p-[6px] w-full mb-[12px] rounded-[4px]"
+              className="border border-gray-400 p-[6px] w-full mb-[12px] mt-[6px] rounded-[4px]"
               placeholder="Enter subject name"
             />
 
-            <label className="text-[14px] font-semibold">Subject Color</label>
+            <label className="text-[14px] font-semibold mb-[6px]">Subject Colors</label>
             <div className="grid grid-cols-2 gap-[14px] mt-[6px] mb-[14px]">
-              <div>
-                <p className="text-[12px] font-semibold mb-[6px]">Theme Colors</p>
-                <div className="grid grid-cols-5 gap-[8px]">
-                {colorChoices.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setNewSubjectColor(color)}
-                    className={`w-[28px] h-[28px] rounded-[4px] border ${newSubjectColor === color ? 'border-black border-[3px]' : 'border-gray-400'}`}
-                    style={{ backgroundColor: color }}
-                    aria-label={`Select color ${color}`}
-                  />
+              <div className="space-y-[8px]">
+                {colorThemes.map((theme, themeIndex) => (
+                  <div key={theme} className="flex items-center gap-[8px]">
+                    <p className="text-[12px] font-semibold w-[60px]">{theme}</p>
+                    <div className="flex gap-[8px]">
+                      {colorChoices.slice(themeIndex * 5, (themeIndex + 1) * 5).map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setNewSubjectColor(color)}
+                          className={`w-[28px] h-[28px] rounded-[4px] border ${newSubjectColor === color ? 'border-black border-[3px]' : 'border-gray-400'}`}
+                          style={{ backgroundColor: color }}
+                          aria-label={`Select color ${color}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
-                </div>
               </div>
 
               <div>
