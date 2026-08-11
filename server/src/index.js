@@ -131,7 +131,7 @@ app.get('/api/analytics/weekly-trend', (req, res) => {
 
   const data = db.prepare(`
     SELECT 
-      DATE(h.date, 'weekday 0', '-6 days') as weekStart,
+      DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
       COUNT(*) as hours
@@ -157,7 +157,7 @@ app.get('/api/analytics/weekly-breakdown', (req, res) => {
 
   const data = db.prepare(`
     SELECT 
-      DATE(h.date, 'weekday 0', '-6 days') as weekStart,
+      DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
       COUNT(*) as hours

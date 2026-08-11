@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dayjs from 'dayjs';
 
 interface WeeklyTrendData {
   weekStart: string;
@@ -18,7 +19,7 @@ interface WeeklyBreakdownData {
 }
 
 // Custom tooltip that renders via portal to body
-const PortalTooltip = ({ active, payload, label, subjectColors, coordinate, chartId }: any) => {
+const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
 
   // Get the specific chart container position to calculate absolute screen coordinates
@@ -166,8 +167,8 @@ export default function Analytics() {
   };
 
   const formatWeekLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getMonth() + 1}/${date.getDate()}`;
+    const date = dayjs(dateStr);
+    return `${date.month() + 1}/${date.date()}`;
   };
 
   return (
