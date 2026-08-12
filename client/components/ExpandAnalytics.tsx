@@ -18,7 +18,7 @@ interface WeeklyBreakdownData {
   hours: number;
 }
 
-const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => {
+const PortalTooltip = ({ active, payload, coordinate, chartId }: any) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
 
   // Get the specific chart container position to calculate absolute screen coordinates
@@ -40,29 +40,7 @@ const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => 
     screenY = rect.top + coordinate.y;
   }
 
-  const tooltipContent = (
-    <div 
-      className="fixed bg-white border border-gray-300 rounded-[4px] p-[8px] shadow-lg pointer-events-none"
-      style={{ 
-        left: `${screenX - 300}px`,
-        top: `${screenY - 20}px`,
-        zIndex: 999999,
-        transform: 'translateY(-50%)'
-      }}
-    >
-      <p className="text-[12px] font-semibold mb-[4px] text-gray-700">{label}</p>
-      {payload.map((entry: any, index: number) => (
-        <p key={index} className="text-[12px]">
-          <span className="text-black">{entry.name}:</span>{' '}
-          <span style={{ color: entry.color, fontWeight: 'bold' }}>
-            {entry.value} hrs
-          </span>
-        </p>
-      ))}
-    </div>
-  );
-
-  return createPortal(tooltipContent, document.body);
+  return createPortal(<div>Tooltip</div>, document.body);
 }
 
 interface ExpandAnalyticsProps {
@@ -167,7 +145,8 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-white z-[10000] overflow-y-auto">
+      <div className="fixed inset-0 z-[10000] bg-black/35 flex items-center justify-center px-[12px]">
+        <div className="fixed inset-0 bg-white z-[10000] overflow-y-auto h-[80%] w-[80%] left-[10%] top-[10%] rounded-[8px] shadow-lg border border-gray-300">
           {/* Header */}
           <div className="flex items-center justify-between p-[20px] border-b border-gray-300">
             <div className="flex items-center">
@@ -208,7 +187,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 {/* Line Chart - Hours Trend Over Weeks */}
                 <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Hourly Trends</h3>
-                  <ResponsiveContainer width="100%" height={400}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <LineChart data={lineChartData()}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
@@ -238,7 +217,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 {/* Stacked Bar Chart - Hours Breakdown per Week */}
                 <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Subject Prominence</h3>
-                  <ResponsiveContainer width="100%" height={400}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <BarChart data={barChartData()}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
@@ -257,6 +236,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                           dataKey={subject.name}
                           stackId="a"
                           fill={subject.color}
+                          barSize={60}
                         />
                       ))}
                     </BarChart>
@@ -266,6 +246,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
             </div>
           )}
         </div>
+      </div>
       )}
     </>
   );
