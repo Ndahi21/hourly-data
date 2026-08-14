@@ -314,21 +314,32 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
               />
             ))}
             <div className="text-[16px] text-center mt-[4px] relative">
-              <div className="relative inline-block">
+              <div
+                className="relative inline-block"
+                onMouseEnter={() => setReviewOpenDay(dayIndex)}
+                onMouseLeave={() => {
+                  setReviewOpenDay((prev) => (prev === dayIndex ? null : prev));
+                  setHoveredRating(null);
+                }}
+              >
                 <button
                   className="flex justify-center items-center hover:text-yellow-600 transition-colors"
-                  onMouseEnter={() => setReviewOpenDay(dayIndex)}
-                  onMouseLeave={() => {
-                    setReviewOpenDay((prev) => (prev === dayIndex ? null : prev));
-                  }}
                   onFocus={() => setReviewOpenDay(dayIndex)}
                   onBlur={() => setReviewOpenDay(null)}
+                  aria-expanded={reviewOpenDay === dayIndex}
                 >
                   Review {dayRatings[dayIndex] ? `(${dayRatings[dayIndex]}/5)` : '☆'}
                 </button>
 
                 {reviewOpenDay === dayIndex && (
-                  <div className="absolute left-1/2 bottom-[24px] z-20 flex -translate-x-1/2 items-center gap-[4px] rounded-md border border-gray-200 bg-white p-[8px] shadow-lg">
+                  <div
+                    className="absolute left-1/2 bottom-[24px] z-20 flex -translate-x-1/2 items-center gap-[4px] rounded-md border border-gray-200 bg-white p-[8px] shadow-lg"
+                    onMouseEnter={() => setReviewOpenDay(dayIndex)}
+                    onMouseLeave={() => {
+                      setReviewOpenDay(null);
+                      setHoveredRating(null);
+                    }}
+                  >
                     {Array.from({ length: 5 }, (_, index) => {
                       const starValue = index + 1;
                       const activeValue = hoveredRating ?? dayRatings[dayIndex] ?? 0;
