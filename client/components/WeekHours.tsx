@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { Subject } from './HourColors';
 
@@ -25,10 +25,13 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
 
   const today = dayjs();
 
-  const daysSinceStart = today.diff(startDate, "day");   
+  const daysSinceStart = today.diff(startDate, "day");
   const weeksSinceStart = Math.floor(daysSinceStart / 7);
-  const currentWeekStart = startDate.add((weeksSinceStart + weekOffset) * 7, "day");
-  const weekStartDate = currentWeekStart.format('YYYY-MM-DD');
+  const currentWeekStart = useMemo(
+    () => startDate.add((weeksSinceStart + weekOffset) * 7, "day"),
+    [weeksSinceStart, weekOffset]
+  );
+  const weekStartDate = useMemo(() => currentWeekStart.format('YYYY-MM-DD'), [currentWeekStart]);
 
   const paintHourBox = async (dayIndex: number, hourIndex: number) => {
     if (!selectedSubject) {
@@ -144,7 +147,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     };
 
     loadWeekData();
-  }, [weekStartDate, currentWeekStart]);
+  }, [weekStartDate]);
 
   useEffect(() => {
     const loadDayRatings = async () => {
@@ -172,7 +175,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     };
 
     loadDayRatings();
-  }, [currentWeekStart, weekStartDate]);
+  }, [weekStartDate]);
 
   const handleDayRating = async (dayIndex: number, rating: number) => {
     const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');

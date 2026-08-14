@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -75,6 +75,31 @@ export default function Analytics() {
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
   const [loading, setLoading] = useState(true);
+  const analyticsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const syncAnalyticsPosition = () => {
+      const scrollOffset = window.scrollY || 0;
+      const panelTop = Math.max(36, 36 + scrollOffset * 0.25);
+
+      if (analyticsRef.current) {
+        analyticsRef.current.style.top = `${panelTop}px`;
+      }
+    };
+
+    syncAnalyticsPosition();
+    window.addEventListener('scroll', syncAnalyticsPosition, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', syncAnalyticsPosition);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && analyticsRef.current) {
+      analyticsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -176,11 +201,15 @@ export default function Analytics() {
 
   return (
     <>
+      <div
+        ref={analyticsRef}
+        className={`fixed top-[36px] right-0 z-[9999] flex flex-row transition-transform duration-700 ease-in-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-[380px]'
+        }`}
+      >
       {/* Tall vertical bar with chevron */}
       <div 
-        className={`fixed top-[120px] w-[40px] h-[calc(100vh-80px)] bg-gray-200 hover:bg-gray-300 cursor-pointer flex items-center justify-center z-[9999] duration-700 transition-all ${
-          isOpen ? 'right-[380px]' : 'right-0'
-        }`}
+        className="mt-[84px] w-[40px] h-[calc(100vh-80px)] flex-shrink-0 bg-gray-200 hover:bg-gray-300 cursor-pointer flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? (
@@ -191,8 +220,9 @@ export default function Analytics() {
       </div>
 
       {/* Analytics panel */}
-      {isOpen && (
-        <div className="fixed top-[36px] right-0 w-[380px] h-[calc(100vh-40px)] bg-gray-100 p-[20px] py-[15px] z-[1000] overflow-y-auto">
+        <div
+          className="w-[380px] h-[calc(100vh-40px)] flex-shrink-0 bg-gray-100 p-[20px] py-[15px] overflow-y-auto"
+        >
           <div className="flex flex-row items-center mb-[12px]">
             <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
             <h2 className="text-[22px] font-bold">Analytics</h2>
@@ -256,7 +286,7 @@ export default function Analytics() {
             </>
           )}
         </div>
-      )}
+      </div>
 
       {/* Expanded Analytics Modal */}
       <ExpandAnalytics isOpen={isExpandedOpen} onClose={() => setIsExpandedOpen(false)} />
