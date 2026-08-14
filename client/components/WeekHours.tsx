@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Subject } from './HourColors';
@@ -16,6 +16,9 @@ type HourAssignment = {
 export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   const [paintedHours, setPaintedHours] = useState<Record<string, HourAssignment>>({});
   const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, +1 = next week
+  const [reviewOpenDay, setReviewOpenDay] = useState<number | null>(null);
+  const [dayRatings, setDayRatings] = useState<Record<number, number>>({});
+  const [hoveredRating, setHoveredRating] = useState<number | null>(null);
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const startDate = dayjs('2026-01-17');
@@ -143,6 +146,52 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     loadWeekData();
   }, [weekStartDate, currentWeekStart]);
 
+  useEffect(() => {
+    const loadDayRatings = async () => {
+      const nextRatings: Record<number, number> = {};
+
+      for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+        const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
+
+        try {
+          const response = await fetch(`/api/day-rating?date=${date}`);
+          if (!response.ok) {
+            continue;
+          }
+
+          const data: { rating: number | null } = await response.json();
+          if (data.rating) {
+            nextRatings[dayIndex] = data.rating;
+          }
+        } catch (error) {
+          console.error('Failed to load day rating:', error);
+        }
+      }
+
+      setDayRatings(nextRatings);
+    };
+
+    loadDayRatings();
+  }, [currentWeekStart, weekStartDate]);
+
+  const handleDayRating = async (dayIndex: number, rating: number) => {
+    const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
+
+    setDayRatings((prev) => ({ ...prev, [dayIndex]: rating }));
+    setReviewOpenDay(null);
+    setHoveredRating(null);
+
+    try {
+      await fetch('/api/day-rating', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, rating }),
+      });
+    } catch (error) {
+      console.error('Failed to save day rating:', error);
+    }
+  };
+
   // User clicks then slides down to paint multiple hours:
   const [isPainting, setIsPainting] = useState(false);
 
@@ -264,10 +313,45 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                 title={paintedHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
               />
             ))}
-            <div className="text-[16px] text-center mt-[4px]">
-              <button>
-                Review ☆
-              </button>
+            <div className="text-[16px] text-center mt-[4px] relative">
+              <div className="relative inline-block">
+                <button
+                  className="flex justify-center items-center hover:text-yellow-600 transition-colors"
+                  onMouseEnter={() => setReviewOpenDay(dayIndex)}
+                  onMouseLeave={() => {
+                    setReviewOpenDay((prev) => (prev === dayIndex ? null : prev));
+                  }}
+                  onFocus={() => setReviewOpenDay(dayIndex)}
+                  onBlur={() => setReviewOpenDay(null)}
+                >
+                  Review {dayRatings[dayIndex] ? `(${dayRatings[dayIndex]}/5)` : '☆'}
+                </button>
+
+                {reviewOpenDay === dayIndex && (
+                  <div className="absolute left-1/2 bottom-[24px] z-20 flex -translate-x-1/2 items-center gap-[4px] rounded-md border border-gray-200 bg-white p-[8px] shadow-lg">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const starValue = index + 1;
+                      const activeValue = hoveredRating ?? dayRatings[dayIndex] ?? 0;
+
+                      return (
+                        <button
+                          key={starValue}
+                          type="button"
+                          aria-label={`Rate ${starValue} out of 5`}
+                          className="p-[2px] transition-transform hover:scale-110"
+                          onMouseEnter={() => setHoveredRating(starValue)}
+                          onMouseLeave={() => setHoveredRating(null)}
+                          onClick={() => handleDayRating(dayIndex, starValue)}
+                        >
+                          <Star
+                            className={`h-[18px] w-[18px] ${starValue <= activeValue ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}

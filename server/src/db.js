@@ -32,6 +32,14 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS day_ratings (
+    date TEXT NOT NULL UNIQUE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
 const defaultSubjects = [
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },

@@ -119,6 +119,40 @@ app.get('/api/week', (req, res) => {
   return res.json({ entries });
 });
 
+app.get('/api/day-rating', (req, res) => {
+  const { date } = req.query;
+
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+    return res.status(400).json({ error: 'date query param is required (YYYY-MM-DD)' });
+  }
+
+  const review = db.prepare('SELECT rating FROM day_ratings WHERE date = ?').get(String(date));
+  return res.json({ rating: review ? review.rating : null });
+});
+
+app.put('/api/day-rating', (req, res) => {
+  const { date, rating } = req.body ?? {};
+
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+    return res.status(400).json({ error: 'date is required (YYYY-MM-DD)' });
+  }
+
+  const numericRating = Number(rating);
+  if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+    return res.status(400).json({ error: 'rating must be an integer from 1 to 5' });
+  }
+
+  db.prepare(`
+    INSERT INTO day_ratings (date, rating)
+    VALUES (?, ?)
+    ON CONFLICT(date) DO UPDATE SET
+      rating = excluded.rating,
+      created_at = datetime('now')
+  `).run(String(date), numericRating);
+
+  return res.json({ saved: true, rating: numericRating });
+});
+
 // Analytics endpoint: Get hours per subject for the last N weeks
 app.get('/api/analytics/weekly-trend', (req, res) => {
   const { weeks = 8 } = req.query;
