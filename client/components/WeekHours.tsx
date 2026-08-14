@@ -264,6 +264,11 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                 title={paintedHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
               />
             ))}
+            <div className="text-[16px] text-center mt-[4px]">
+              <button>
+                Review ☆
+              </button>
+            </div>
           </div>
         ))}
       </div>
