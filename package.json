@@ -9,6 +9,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "express": "^5.2.1",
+    "recharts": "^3.10.1",
     "typed.js": "^2.1.0"
   },
   "devDependencies": {

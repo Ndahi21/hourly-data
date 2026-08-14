@@ -18,7 +18,13 @@ interface WeeklyBreakdownData {
   hours: number;
 }
 
-const PortalTooltip = ({ active, payload, coordinate, chartId }: any) => {
+type RechartsTooltipProps = {
+  active?: boolean;
+  payload?: any[];
+  coordinate?: { x: number; y: number };
+};
+
+const PortalTooltip = ({ active, payload, coordinate, chartId }: RechartsTooltipProps & { chartId: string }) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
 
   // Get the specific chart container position to calculate absolute screen coordinates
@@ -199,7 +205,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                         style={{ fontSize: '12px' }} 
                         label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
                       />
-                      <Tooltip content={(props) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="line" />} />
+                      <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="line" />} />
                       {uniqueSubjects().map((subject) => (
                         <Line
                           key={subject.name}
@@ -229,7 +235,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                         style={{ fontSize: '12px' }} 
                         label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
                       />
-                      <Tooltip content={(props) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
+                      <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
                       {sortedSubjectsForStack().map((subject) => (
                         <Bar
                           key={subject.name}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { TooltipProps } from 'recharts';
 import dayjs from 'dayjs';
 import ExpandAnalytics from './ExpandAnalytics';
 
@@ -209,7 +210,7 @@ export default function Analytics() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" style={{ fontSize: '12px' }} />
                     <YAxis style={{ fontSize: '12px' }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="line" />} />
+                    <Tooltip content={(props: TooltipProps<number, string>) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} chartId="line" />} />
                     {uniqueSubjects().map((subject) => (
                       <Line
                         key={subject.name}
@@ -232,7 +233,7 @@ export default function Analytics() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="week" style={{ fontSize: '12px' }} />
                     <YAxis style={{ fontSize: '12px' }} />
-                    <Tooltip content={(props) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} coordinate={props.coordinate} chartId="bar" />} />
+                    <Tooltip content={(props: TooltipProps<number, string>) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} chartId="bar" />} />
                     {sortedSubjectsForStack().map((subject) => (
                       <Bar
                         key={subject.name}
