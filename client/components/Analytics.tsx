@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -75,31 +75,6 @@ export default function Analytics() {
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
   const [loading, setLoading] = useState(true);
-  const analyticsRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const syncAnalyticsPosition = () => {
-      const scrollOffset = window.scrollY || 0;
-      const panelTop = Math.max(36, 36 + scrollOffset * 0.25);
-
-      if (analyticsRef.current) {
-        analyticsRef.current.style.top = `${panelTop}px`;
-      }
-    };
-
-    syncAnalyticsPosition();
-    window.addEventListener('scroll', syncAnalyticsPosition, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', syncAnalyticsPosition);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isOpen && analyticsRef.current) {
-      analyticsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -202,7 +177,6 @@ export default function Analytics() {
   return (
     <>
       <div
-        ref={analyticsRef}
         className={`fixed top-[36px] right-0 z-[9999] flex flex-row transition-transform duration-700 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-[380px]'
         }`}
