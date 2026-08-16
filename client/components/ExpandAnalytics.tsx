@@ -18,6 +18,11 @@ interface WeeklyBreakdownData {
   hours: number;
 }
 
+interface WeeklyRatingData {
+  weekStart: string;
+  rating: number;
+}
+
 type RechartsTooltipProps = {
   active?: boolean;
   payload?: any[];
@@ -58,6 +63,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
   const [loading, setLoading] = useState(false);
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
+  const [ratingData, setRatingData] = useState<WeeklyRatingData[]>([]);
   const [hoveredWeek, setHoveredWeek] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,9 +72,10 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
         setLoading(true);
 
         // Fetch both analytics endpoints
-        const [trendRes, breakdownRes] = await Promise.all([
+        const [trendRes, breakdownRes, ratingRes] = await Promise.all([
           fetch('/api/analytics/weekly-trend?weeks=8'),
-          fetch('/api/analytics/weekly-breakdown?weeks=8')
+          fetch('/api/analytics/weekly-breakdown?weeks=8'),
+          fetch('/api/analytics/weekly-rating?weeks=8')
         ]);
 
         if (trendRes.ok && breakdownRes.ok) {
@@ -77,6 +84,11 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
 
           setTrendData(trendJson.data || []);
           setBreakdownData(breakdownJson.data || []);
+        }
+
+        if (ratingRes.ok) {
+          const ratingJson = await ratingRes.json();
+          setRatingData(ratingJson.data || []);
         }
 
       } catch (error) {
@@ -118,6 +130,14 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
     });
 
     return Array.from(weekMap.values());
+  };
+
+  // Transform data for average rating per week
+  const ratingChartData = () => {
+    return ratingData.map(item => ({
+      week: formatWeekLabel(item.weekStart),
+      rating: Math.round(item.rating * 10) / 10,
+    }));
   };
 
   // Get unique subjects for chart legends
@@ -246,7 +266,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 </div>
 
                 {/* Stacked Bar Chart - Hours Breakdown per Week */}
-                <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
+                <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Subject Prominence</h3>
                   <ResponsiveContainer width="100%" height={240}>
                     <BarChart
@@ -275,6 +295,33 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                           barSize={60}
                         />
                       ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Weekly Rating - Average day rating per week */}
+                <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
+                  <h3 className="text-[18px] font-semibold mb-[16px]">Weekly Rating</h3>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart
+                      data={ratingChartData()}
+                      margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
+                      onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
+                      onMouseLeave={() => setHoveredWeek(null)}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="week" 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
+                      />
+                      <YAxis 
+                        domain={[0, 5]}
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Rating', angle: -90, position: 'insideLeft' }} 
+                      />
+                      <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
+                      <Bar dataKey="rating" fill="#facc15" barSize={60} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

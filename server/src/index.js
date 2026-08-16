@@ -206,6 +206,28 @@ app.get('/api/analytics/weekly-breakdown', (req, res) => {
   return res.json({ data });
 });
 
+// Analytics endpoint: Get average day rating per week
+app.get('/api/analytics/weekly-rating', (req, res) => {
+  const { weeks = 8 } = req.query;
+  const numWeeks = Math.min(Math.max(parseInt(weeks), 1), 52);
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (numWeeks * 7));
+  const startDateStr = startDate.toISOString().split('T')[0];
+
+  const data = db.prepare(`
+    SELECT 
+      DATE(date, '-' || ((CAST(strftime('%w', date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
+      AVG(rating) as rating
+    FROM day_ratings
+    WHERE date >= ?
+    GROUP BY weekStart
+    ORDER BY weekStart ASC
+  `).all(startDateStr);
+
+  return res.json({ data });
+});
+
 app.listen(PORT, () => {
   console.log(`SQLite API running on http://localhost:${PORT}`);
 });
