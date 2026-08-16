@@ -58,6 +58,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
   const [loading, setLoading] = useState(false);
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
+  const [hoveredWeek, setHoveredWeek] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -140,7 +141,22 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
 
     return Array.from(subjectTotals.entries())
       .sort((a, b) => b[1].total - a[1].total) // Descending order (most hours first)
-      .map(([name, data]) => ({ name, color: data.color }));
+      .map(([name, data]) => ({ name, color: data.color, hours: data.total }));
+  };
+
+  // Get each subject's hours for a specific week, ordered highest first
+  const getWeekSubjectHours = (weekLabel: string) => {
+    const hoursBySubject = new Map<string, number>();
+
+    breakdownData
+      .filter(item => formatWeekLabel(item.weekStart) === weekLabel)
+      .forEach(item => {
+        hoursBySubject.set(item.subject, (hoursBySubject.get(item.subject) || 0) + item.hours);
+      });
+
+    return uniqueSubjects()
+      .map(({ name, color }) => ({ name, color, hours: hoursBySubject.get(name) || 0 }))
+      .sort((a, b) => b.hours - a.hours);
   };
 
   const formatWeekLabel = (dateStr: string) => {
@@ -152,9 +168,9 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
     <>
       {isOpen && (
       <div className="fixed inset-0 z-[10000] bg-black/35 flex items-center justify-center px-[12px]">
-        <div className="fixed inset-0 bg-white z-[10000] overflow-y-auto h-[80%] w-[80%] left-[10%] top-[10%] rounded-[8px] shadow-lg border border-gray-300">
+        <div className="inset-0 bg-white z-[10000] flex flex-col h-[80%] w-[80%] left-[10%] top-[10%] rounded-[8px] shadow-lg border border-gray-300">
           {/* Header */}
-          <div className="flex items-center justify-between p-[20px] border-b border-gray-300">
+          <div className="flex items-center justify-between p-[20px] border-b border-gray-300 flex-shrink-0">
             <div className="flex items-center">
               <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
               <h2 className="text-[22px] font-bold">Analytics</h2>
@@ -171,30 +187,38 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
           {loading ? (
             <div className="text-center py-[40px] text-gray-600">Loading analytics...</div>
           ) : (
-            <div className="flex">
+            <div className="flex flex-1 min-h-0">
               {/* Legend Sidebar - Left Side */}
-              <div className="w-[220px] p-[20px] border-r border-gray-300 bg-gray-50">
-                <h3 className="text-[14px] font-bold mb-[12px]">Subjects by Hours</h3>
+              <div className="w-[220px] p-[20px] border-r border-gray-300 bg-gray-50 flex-shrink-0 overflow-y-auto">
+                <h3 className="text-[14px] font-bold mb-[12px]">
+                  {hoveredWeek ? `Week of ${hoveredWeek}` : 'Subjects by Hours'}
+                </h3>
                 <div className="space-y-[6px]">
-                  {sortedSubjectsForStack().map((subject) => (
+                  {(hoveredWeek ? getWeekSubjectHours(hoveredWeek) : sortedSubjectsForStack()).map((subject) => (
                     <div key={subject.name} className="flex items-center gap-[8px]">
                       <span 
                         className="w-[16px] h-[16px] rounded-[3px] flex-shrink-0"
                         style={{ backgroundColor: subject.color }}
                       />
                       <span className="text-[13px] text-gray-800">{subject.name}</span>
+                      <span className="ml-auto text-[13px] text-gray-800">{subject.hours} hrs</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Charts Area */}
-              <div className="flex-1 p-[20px]">
+              <div className="flex-1 p-[20px] overflow-y-auto">
                 {/* Line Chart - Hours Trend Over Weeks */}
                 <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Hourly Trends</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <LineChart data={lineChartData()} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
+                    <LineChart
+                      data={lineChartData()}
+                      margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
+                      onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
+                      onMouseLeave={() => setHoveredWeek(null)}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="week" 
@@ -225,7 +249,12 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Subject Prominence</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={barChartData()} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
+                    <BarChart
+                      data={barChartData()}
+                      margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
+                      onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
+                      onMouseLeave={() => setHoveredWeek(null)}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="week" 
