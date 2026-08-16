@@ -194,12 +194,13 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Hourly Trends</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <LineChart data={lineChartData()}>
+                    <LineChart data={lineChartData()} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="week" 
+                        padding={{ left: 20, right: 20 }}
                         style={{ fontSize: '12px' }} 
-                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -5 }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
                       />
                       <YAxis 
                         style={{ fontSize: '12px' }} 
@@ -224,12 +225,12 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Subject Prominence</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={barChartData()}>
+                    <BarChart data={barChartData()} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="week" 
                         style={{ fontSize: '12px' }} 
-                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -5 }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
                       />
                       <YAxis 
                         style={{ fontSize: '12px' }} 
