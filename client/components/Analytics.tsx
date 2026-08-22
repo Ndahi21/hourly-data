@@ -20,6 +20,7 @@ interface WeeklyBreakdownData {
   hours: number;
 }
 
+
 // Custom tooltip that renders via portal to body
 const PortalTooltip = ({ active, payload, label, coordinate, chartId }: any) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
@@ -75,6 +76,7 @@ export default function Analytics() {
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredWeek, setHoveredWeek] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -210,9 +212,14 @@ export default function Analytics() {
               <div className="bg-white p-[15px] py-[10px] rounded-[8px] mb-[10px] shadow-sm">
                 <h3 className="text-[16px] font-semibold mb-[10px]">Hourly Trends</h3>
                 <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={lineChartData()}>
+                  <LineChart
+                    data={lineChartData()}
+                    margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
+                    onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
+                    onMouseLeave={() => setHoveredWeek(null)}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" style={{ fontSize: '12px' }} />
+                    <XAxis dataKey="week" style={{ fontSize: '12px' }} padding={{ left: 20, right: 20 }} />
                     <YAxis style={{ fontSize: '12px' }} />
                     <Tooltip content={(props: TooltipProps<number, string>) => <PortalTooltip {...props} subjectColors={getSubjectColorMap()} chartId="line" />} />
                     {uniqueSubjects().map((subject) => (
