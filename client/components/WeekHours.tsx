@@ -336,33 +336,38 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
 
                 {reviewOpenDay === dayIndex && (
                   <div
-                    className="absolute left-1/2 bottom-[24px] z-20 flex -translate-x-1/2 items-center gap-[4px] rounded-md border border-gray-200 bg-white p-[8px] shadow-lg"
+                    className="absolute left-1/2 bottom-[24px] z-20 flex flex-col -translate-x-1/2 items-center gap-[4px] rounded-md border border-gray-200 bg-white p-[8px] shadow-lg"
                     onMouseEnter={() => setReviewOpenDay(dayIndex)}
                     onMouseLeave={() => {
                       setReviewOpenDay(null);
                       setHoveredRating(null);
                     }}
                   >
-                    {Array.from({ length: 5 }, (_, index) => {
-                      const starValue = index + 1;
-                      const activeValue = hoveredRating ?? dayRatings[dayIndex] ?? 0;
+                    <button className="text-[12px] font-medium text-gray-700">
+                      Review Day
+                    </button>
+                    <div className="flex items-center gap-[4px]">
+                      {Array.from({ length: 5 }, (_, index) => {
+                        const starValue = index + 1;
+                        const activeValue = hoveredRating ?? dayRatings[dayIndex] ?? 0;
 
-                      return (
-                        <button
-                          key={starValue}
-                          type="button"
-                          aria-label={`Rate ${starValue} out of 5`}
-                          className="p-[2px] transition-transform hover:scale-110"
-                          onMouseEnter={() => setHoveredRating(starValue)}
-                          onMouseLeave={() => setHoveredRating(null)}
-                          onClick={() => handleDayRating(dayIndex, starValue)}
-                        >
-                          <Star
-                            className={`h-[18px] w-[18px] ${starValue <= activeValue ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                          />
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={starValue}
+                            type="button"
+                            aria-label={`Rate ${starValue} out of 5`}
+                            className="p-[2px] transition-transform hover:scale-110"
+                            onMouseEnter={() => setHoveredRating(starValue)}
+                            onMouseLeave={() => setHoveredRating(null)}
+                            onClick={() => handleDayRating(dayIndex, starValue)}
+                          >
+                            <Star
+                              className={`h-[18px] w-[18px] ${starValue <= activeValue ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
