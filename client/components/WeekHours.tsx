@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import ReviewDay from './ReviewDay';
 import dayjs from 'dayjs';
 import { Subject } from './HourColors';
 
@@ -19,6 +20,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   const [reviewOpenDay, setReviewOpenDay] = useState<number | null>(null);
   const [dayRatings, setDayRatings] = useState<Record<number, number>>({});
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+  const [reviewDayModalOpen, setReviewDayModalOpen] = useState<number | null>(null);
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const startDate = dayjs('2026-01-17');
@@ -361,6 +363,10 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                             onMouseLeave={() => setHoveredRating(null)}
                             onClick={() => handleDayRating(dayIndex, starValue)}
                           >
+                            <ReviewDay
+                              isOpen={reviewDayModalOpen === dayIndex}
+                              onClose={() => setReviewDayModalOpen(null)}
+                            />
                             <Star
                               className={`h-[18px] w-[18px] ${starValue <= activeValue ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                             />
