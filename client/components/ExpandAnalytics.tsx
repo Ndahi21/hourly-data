@@ -140,6 +140,17 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
     }));
   };
 
+  // Calculate cumulative hours for each subject over the weeks
+  const cumulativeHours = () => {
+    const subjectTotals = new Map<string, number>();
+
+    breakdownData.forEach(item => {
+      subjectTotals.set(item.subject, (subjectTotals.get(item.subject) || 0) + item.hours);
+    });
+
+    return Array.from(subjectTotals.entries()).map(([name, hours]) => ({ name, hours }));
+  };
+
   // Get unique subjects for chart legends
   const uniqueSubjects = () => {
     const subjects = new Map<string, string>();
@@ -224,6 +235,18 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                       <span className="ml-auto text-[13px] text-gray-800">{subject.hours} hrs</span>
                     </div>
                   ))}
+                </div>
+                <hr className="my-[12px] border-t border-gray-300" />
+                <div className="text-[13px] text-gray-700">
+                  {(!hoveredWeek ? (
+                    <div className="mt-[6px] text-[12px] text-gray-500">
+                      Total Hours: {sortedSubjectsForStack().reduce((sum, subject) => sum + subject.hours, 0)} hrs
+                    </div>
+                  ) : 
+                    <div className="mt-[6px] text-[12px] text-gray-500">
+                      Week Total: {getWeekSubjectHours(hoveredWeek).reduce((sum, subject) => sum + subject.hours, 0)} hrs
+                    </div>
+                  )}
                 </div>
               </div>
 
