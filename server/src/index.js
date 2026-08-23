@@ -206,7 +206,7 @@ app.get('/api/analytics/weekly-breakdown', (req, res) => {
   return res.json({ data });
 });
 
-// Analytics endpoint: Get average day rating per week
+// Analytics endpoint: Get day ratings grouped by week
 app.get('/api/analytics/weekly-rating', (req, res) => {
   const { weeks = 8 } = req.query;
   const numWeeks = Math.min(Math.max(parseInt(weeks), 1), 52);
@@ -218,11 +218,19 @@ app.get('/api/analytics/weekly-rating', (req, res) => {
   const data = db.prepare(`
     SELECT 
       DATE(date, '-' || ((CAST(strftime('%w', date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
-      AVG(rating) as rating
+      CASE CAST(strftime('%w', date) AS INTEGER)
+        WHEN 0 THEN 'Sun'
+        WHEN 1 THEN 'Mon'
+        WHEN 2 THEN 'Tue'
+        WHEN 3 THEN 'Wed'
+        WHEN 4 THEN 'Thu'
+        WHEN 5 THEN 'Fri'
+        WHEN 6 THEN 'Sat'
+      END as day,
+      rating
     FROM day_ratings
     WHERE date >= ?
-    GROUP BY weekStart
-    ORDER BY weekStart ASC
+    ORDER BY weekStart ASC, date ASC
   `).all(startDateStr);
 
   return res.json({ data });

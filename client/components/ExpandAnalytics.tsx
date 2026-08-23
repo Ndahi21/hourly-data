@@ -1,8 +1,20 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
+
+// Fixed day order + colors for consistent stacking
+const DAY_ORDER = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_COLORS: Record<string, string> = {
+  Mon: '#facc15',
+  Tue: '#fbbf24',
+  Wed: '#f59e0b',
+  Thu: '#f97316',
+  Fri: '#ea580c',
+  Sat: '#dc2626',
+  Sun: '#b91c1c',
+};
 
 interface WeeklyTrendData {
   weekStart: string;
@@ -20,26 +32,30 @@ interface WeeklyBreakdownData {
 
 interface WeeklyRatingData {
   weekStart: string;
+  day: string;
   rating: number;
 }
 
 type RechartsTooltipProps = {
   active?: boolean;
-  payload?: any[];
+  payload?: readonly any[];
+  label?: string | number;
   coordinate?: { x: number; y: number };
 };
 
-const PortalTooltip = ({ active, payload, coordinate, chartId }: RechartsTooltipProps & { chartId: string }) => {
+const PortalTooltip = ({ active, payload, label, coordinate, chartId }: RechartsTooltipProps & { chartId: string }) => {
   if (!active || !payload || !payload.length || !coordinate) return null;
 
   // Get the specific chart container position to calculate absolute screen coordinates
   const allChartWrappers = document.querySelectorAll('.recharts-wrapper');
-  let chartWrapper = null;
+  let chartWrapper: Element | null = null;
   
   if (chartId === 'line') {
     chartWrapper = allChartWrappers[0]; // First chart is line chart
   } else if (chartId === 'bar') {
     chartWrapper = allChartWrappers[1]; // Second chart is bar chart
+  } else if (chartId === 'rating') {
+    chartWrapper = allChartWrappers[2]; // Third chart is rating chart
   }
   
   let screenX = coordinate.x;
@@ -51,7 +67,29 @@ const PortalTooltip = ({ active, payload, coordinate, chartId }: RechartsTooltip
     screenY = rect.top + coordinate.y;
   }
 
-  return createPortal(<div>Tooltip</div>, document.body);
+  const tooltipContent = (
+    <div 
+      className="fixed bg-white border border-gray-300 rounded-[4px] p-[8px] shadow-lg pointer-events-none"
+      style={{ 
+        left: `${screenX - 120}px`,
+        top: `${screenY - 20}px`,
+        zIndex: 999999,
+        transform: 'translateY(-50%)'
+      }}
+    >
+      <p className="text-[12px] font-semibold mb-[4px] text-gray-700">{label}</p>
+      {payload.map((entry: any, index: number) => (
+        <p key={index} className="text-[12px]">
+          <span className="text-black">{entry.name}:</span>{' '}
+          <span style={{ color: entry.color, fontWeight: 'bold' }}>
+            {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value} {chartId === 'rating' ? '' : 'hrs'}
+          </span>
+        </p>
+      ))}
+    </div>
+  );
+
+  return createPortal(tooltipContent, document.body);
 }
 
 interface ExpandAnalyticsProps {
@@ -132,23 +170,19 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
     return Array.from(weekMap.values());
   };
 
-  // Transform data for average rating per week
+  // Transform data for stacked bar chart (rating per day per week)
   const ratingChartData = () => {
-    return ratingData.map(item => ({
-      week: formatWeekLabel(item.weekStart),
-      rating: Math.round(item.rating * 10) / 10,
-    }));
-  };
-
-  // Calculate cumulative hours for each subject over the weeks
-  const cumulativeHours = () => {
-    const subjectTotals = new Map<string, number>();
-
-    breakdownData.forEach(item => {
-      subjectTotals.set(item.subject, (subjectTotals.get(item.subject) || 0) + item.hours);
+    const weekMap = new Map<string, any>();
+    
+    ratingData.forEach(item => {
+      if (!weekMap.has(item.weekStart)) {
+        weekMap.set(item.weekStart, { week: formatWeekLabel(item.weekStart) });
+      }
+      const week = weekMap.get(item.weekStart);
+      week[item.day] = item.rating;
     });
 
-    return Array.from(subjectTotals.entries()).map(([name, hours]) => ({ name, hours }));
+    return Array.from(weekMap.values());
   };
 
   // Get unique subjects for chart legends
@@ -273,7 +307,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                         style={{ fontSize: '12px' }} 
                         label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
                       />
-                      <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="line" />} />
+                      <Tooltip content={(props: any) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="line" />} />
                       {uniqueSubjects().map((subject) => (
                         <Line
                           key={subject.name}
@@ -322,11 +356,11 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                   </ResponsiveContainer>
                 </div>
                 
-                {/* Weekly Rating - Average day rating per week */}
+                {/* Weekly Rating - Daily ratings stacked per week */}
                 <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Weekly Rating</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <LineChart
+                    <BarChart
                       data={ratingChartData()}
                       margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
                       onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
@@ -340,13 +374,22 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                         label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
                       />
                       <YAxis 
-                        domain={[0, 5]}
+                        domain={[0, 35]}
                         style={{ fontSize: '12px' }} 
                         label={{ value: 'Rating', angle: -90, position: 'insideLeft' }} 
                       />
-                      <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
-                      <Line type="monotone" dataKey="rating" stroke="#facc15" />
-                    </LineChart>
+                      <Tooltip content={(props: any) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="rating" />} />
+                      {DAY_ORDER.map((day) => (
+                        <Bar key={day} dataKey={day} stackId="a" fill={DAY_COLORS[day]} barSize={60}>
+                          <LabelList
+                            dataKey={day}
+                            position="center"
+                            style={{ fontSize: '11px', fill: '#fff', fontWeight: 600 }}
+                            formatter={(value: any) => (value > 0 ? value : '')}
+                          />
+                        </Bar>
+                      ))}
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
