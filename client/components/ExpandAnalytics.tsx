@@ -303,7 +303,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                 <div className="bg-white p-[20px] rounded-[8px] shadow-sm border border-gray-200">
                   <h3 className="text-[18px] font-semibold mb-[16px]">Weekly Rating</h3>
                   <ResponsiveContainer width="100%" height={240}>
-                    <BarChart
+                    <LineChart
                       data={ratingChartData()}
                       margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
                       onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
@@ -312,6 +312,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="week" 
+                        padding={{ left: 20, right: 20 }}
                         style={{ fontSize: '12px' }} 
                         label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
                       />
@@ -321,8 +322,8 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                         label={{ value: 'Rating', angle: -90, position: 'insideLeft' }} 
                       />
                       <Tooltip content={(props: RechartsTooltipProps) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="bar" />} />
-                      <Bar dataKey="rating" fill="#facc15" barSize={60} />
-                    </BarChart>
+                      <Line type="monotone" dataKey="rating" stroke="#facc15" />
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
