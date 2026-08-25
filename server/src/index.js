@@ -236,6 +236,66 @@ app.get('/api/analytics/weekly-rating', (req, res) => {
   return res.json({ data });
 });
 
+// Get routine template
+app.get('/api/routine', (_req, res) => {
+  const entries = db.prepare(`
+    SELECT 
+      r.day_of_week as dayOfWeek,
+      r.hour,
+      s.name as subjectName,
+      s.color,
+      s.id as subjectId
+    FROM routine_templates r
+    JOIN subjects s ON r.subject_id = s.id
+    ORDER BY r.day_of_week ASC, r.hour ASC
+  `).all();
+
+  return res.json({ entries });
+});
+
+// Save routine template
+app.put('/api/routine', (req, res) => {
+  const { entries } = req.body ?? {};
+
+  if (!Array.isArray(entries)) {
+    return res.status(400).json({ error: 'entries must be an array' });
+  }
+
+  try {
+    db.transaction(() => {
+      // Clear existing routine
+      db.prepare('DELETE FROM routine_templates').run();
+
+      // Insert new routine entries
+      const insertStmt = db.prepare(`
+        INSERT INTO routine_templates (day_of_week, hour, subject_id)
+        VALUES (?, ?, ?)
+      `);
+
+      entries.forEach(entry => {
+        const { dayOfWeek, hour, subjectId } = entry;
+
+        if (
+          typeof dayOfWeek !== 'number' ||
+          typeof hour !== 'number' ||
+          typeof subjectId !== 'number' ||
+          dayOfWeek < 0 || dayOfWeek > 6 ||
+          hour < 0 || hour > 23
+        ) {
+          throw new Error('Invalid entry format');
+        }
+
+        insertStmt.run(dayOfWeek, hour, subjectId);
+      });
+    })();
+
+    return res.json({ saved: true });
+  } catch (error) {
+    console.error('Failed to save routine:', error);
+    return res.status(500).json({ error: 'Failed to save routine' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`SQLite API running on http://localhost:${PORT}`);
 });

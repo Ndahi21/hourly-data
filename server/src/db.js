@@ -40,6 +40,17 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS routine_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+    hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
+    subject_id INTEGER NOT NULL REFERENCES subjects(id),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(day_of_week, hour)
+  );
+`);
+
 const defaultSubjects = [
   { name: 'Sleep', color: '#535353' },
   { name: 'Social', color: '#aef6ff' },
