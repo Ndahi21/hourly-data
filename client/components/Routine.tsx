@@ -171,7 +171,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
         <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
           {Array.from({ length: 24 }, (_, i) => (
             <div key={i}>
-              {i === 0 ? '12 am' : i < 12 ? `${i} am` : i === 12 ? '12 pm' : `${i - 12} pm`}
+              {i === 0 ? '1 am' : i < 11 ? `${i + 1} am` : i === 11 ? '12 pm' : i < 23 ? `${i - 11} pm` : '12 am'}
             </div>
           ))}
         </div>
