@@ -16,7 +16,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
   const [routineHours, setRoutineHours] = useState<Record<string, HourAssignment>>({});
   const [isPainting, setIsPainting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
   // Load routine template from backend
   useEffect(() => {
