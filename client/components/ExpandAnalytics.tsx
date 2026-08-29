@@ -15,6 +15,15 @@ const DAY_COLORS: Record<string, string> = {
   Sat: '#dc2626',
   Sun: '#b91c1c',
 };
+const SLEEP_COLORS: Record<string, string> = {
+  Mon: '#eeeef4',
+  Tue: '#ccc9dd',
+  Wed: '#aea7be',
+  Thu: '#888493',
+  Fri: '#615c67',
+  Sat: '#3a383d',
+  Sun: '#181819',
+};
 
 interface WeeklyTrendData {
   weekStart: string;
@@ -27,6 +36,12 @@ interface WeeklyBreakdownData {
   weekStart: string;
   subject: string;
   color: string;
+  hours: number;
+}
+
+interface WeeklySleepData {
+  weekStart: string;
+  day: string;
   hours: number;
 }
 
@@ -51,11 +66,13 @@ const PortalTooltip = ({ active, payload, label, coordinate, chartId }: Recharts
   let chartWrapper: Element | null = null;
   
   if (chartId === 'line') {
-    chartWrapper = allChartWrappers[0]; // First chart is line chart
+    chartWrapper = allChartWrappers[0];
   } else if (chartId === 'bar') {
-    chartWrapper = allChartWrappers[1]; // Second chart is bar chart
+    chartWrapper = allChartWrappers[1];
+  } else if (chartId === 'sleep') {
+    chartWrapper = allChartWrappers[2];
   } else if (chartId === 'rating') {
-    chartWrapper = allChartWrappers[2]; // Third chart is rating chart
+    chartWrapper = allChartWrappers[3];
   }
   
   let screenX = coordinate.x;
@@ -101,6 +118,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
   const [loading, setLoading] = useState(false);
   const [trendData, setTrendData] = useState<WeeklyTrendData[]>([]);
   const [breakdownData, setBreakdownData] = useState<WeeklyBreakdownData[]>([]);
+  const [sleepData, setSleepData] = useState<WeeklySleepData[]>([]);
   const [ratingData, setRatingData] = useState<WeeklyRatingData[]>([]);
   const [hoveredWeek, setHoveredWeek] = useState<string | null>(null);
 
@@ -110,13 +128,14 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
         setLoading(true);
 
         // Fetch both analytics endpoints
-        const [trendRes, breakdownRes, ratingRes] = await Promise.all([
+        const [trendRes, breakdownRes, ratingRes, sleepRes] = await Promise.all([
           fetch('/api/analytics/weekly-trend?weeks=8'),
           fetch('/api/analytics/weekly-breakdown?weeks=8'),
-          fetch('/api/analytics/weekly-rating?weeks=8')
+          fetch('/api/analytics/weekly-rating?weeks=8'),
+          fetch('/api/analytics/weekly-sleep?weeks=8')
         ]);
 
-        if (trendRes.ok && breakdownRes.ok) {
+        if (trendRes.ok && breakdownRes.ok && ratingRes.ok && sleepRes.ok) {
           const trendJson = await trendRes.json();
           const breakdownJson = await breakdownRes.json();
 
@@ -124,9 +143,24 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
           setBreakdownData(breakdownJson.data || []);
         }
 
+        if (trendRes.ok) {
+          const trendJson = await trendRes.json();
+          setTrendData(trendJson.data || []);
+        }
+
+        if (breakdownRes.ok) {
+          const breakdownJson = await breakdownRes.json();
+          setBreakdownData(breakdownJson.data || []);
+        }
+
         if (ratingRes.ok) {
           const ratingJson = await ratingRes.json();
           setRatingData(ratingJson.data || []);
+        }
+
+        if (sleepRes.ok) {
+          const sleepJson = await sleepRes.json();
+          setSleepData(sleepJson.data || []);
         }
 
       } catch (error) {
@@ -165,6 +199,21 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
       }
       const week = weekMap.get(item.weekStart);
       week[item.subject] = item.hours;
+    });
+
+    return Array.from(weekMap.values());
+  };
+
+  // Transform data for stacked bar chart (sleep hours per day per week)
+  const sleepChartData = () => {
+    const weekMap = new Map<string, any>();
+
+    sleepData.forEach(item => {
+      if (!weekMap.has(item.weekStart)) {
+        weekMap.set(item.weekStart, { week: formatWeekLabel(item.weekStart) });
+      }
+      const week = weekMap.get(item.weekStart);
+      week[item.day] = item.hours;
     });
 
     return Array.from(weekMap.values());
@@ -351,6 +400,42 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
                           fill={subject.color}
                           barSize={60}
                         />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Stacked Bar Chart - Sleep Hours per week */}
+                <div className="bg-white p-[20px] rounded-[8px] mb-[20px] shadow-sm border border-gray-200">
+                  <h3 className="text-[18px] font-semibold mb-[16px]">Sleep Hours</h3>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart
+                      data={sleepChartData()}
+                      margin={{ top: 5, right: 5, left: 5, bottom: 20 }}
+                      onMouseMove={(state) => setHoveredWeek(state.activeLabel != null ? String(state.activeLabel) : null)}
+                      onMouseLeave={() => setHoveredWeek(null)}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="week" 
+                        padding={{ left: 20, right: 20 }}
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Week Starting', position: 'insideBottom', offset: -8 }} 
+                      />
+                      <YAxis 
+                        style={{ fontSize: '12px' }} 
+                        label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} 
+                      />
+                      <Tooltip content={(props: any) => <PortalTooltip {...props} coordinate={props.coordinate} chartId="sleep" />} />
+                      {DAY_ORDER.map((day) => (
+                        <Bar key={day} dataKey={day} stackId="a" fill={SLEEP_COLORS[day]} barSize={60}>
+                          <LabelList
+                            dataKey={day}
+                            position="center"
+                            style={{ fontSize: '11px', fill: '#fff', fontWeight: 600 }}
+                            formatter={(value: any) => (value > 0 ? value : '')}
+                          />
+                        </Bar>
                       ))}
                     </BarChart>
                   </ResponsiveContainer>
