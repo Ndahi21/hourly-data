@@ -136,7 +136,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
 
   return (
     <div className="p-[20px] pl-[340px]">
-      <div className="fixed top-[80px] left-[340px] right-0 z-50 bg-white pb-[16px]">
+      <div className="sticky top-[80px] z-50 bg-white pb-[16px]">
         {/* Header */}
         <div className="flex items-center justify-between mb-[12px]">
           <div>
@@ -158,8 +158,8 @@ export default function Routine({ selectedSubject }: RoutineProps) {
         <div className="flex">
           <div className="w-[60px]"></div>
           {days.map((day, dayIndex) => (
-            <div key={dayIndex} className="w-[100px]">
-              <h3 className="text-[16px] font-bold mb-[10px] flex justify-center">
+            <div key={dayIndex} className="w-[100px] flex justify-center text-center">
+              <h3 className="text-[16px] font-bold mb-[2px]">
                 {day}
               </h3>
             </div>
@@ -167,8 +167,8 @@ export default function Routine({ selectedSubject }: RoutineProps) {
         </div>
       </div>
 
-      <div className="pt-[120px] flex flex-row">
-        <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
+      <div className="flex flex-row">
+        <div className="w-[60px] text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
           {Array.from({ length: 24 }, (_, i) => (
             <div key={i}>
               {i === 0 ? '1 am' : i < 11 ? `${i + 1} am` : i === 11 ? '12 pm' : i < 23 ? `${i - 11} pm` : '12 am'}
