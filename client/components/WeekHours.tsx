@@ -345,7 +345,8 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                       setHoveredRating(null);
                     }}
                   >
-                    <button className="text-[12px] font-medium text-gray-700">
+                    <button className="text-[12px] border border-gray-300 px-[24px] py-[6px] font-medium text-gray-700
+                    hover:bg-gray-100 transition-colors rounded-[4px] mb-[4px]">
                       Review Day
                     </button>
                     <div className="flex items-center gap-[4px]">
