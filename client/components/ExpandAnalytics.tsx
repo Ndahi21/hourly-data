@@ -127,7 +127,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
       try {
         setLoading(true);
 
-        // Fetch both analytics endpoints
+        // Fetch all analytics endpoints
         const [trendRes, breakdownRes, ratingRes, sleepRes] = await Promise.all([
           fetch('/api/analytics/weekly-trend?weeks=8'),
           fetch('/api/analytics/weekly-breakdown?weeks=8'),
@@ -135,14 +135,7 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
           fetch('/api/analytics/weekly-sleep?weeks=8')
         ]);
 
-        if (trendRes.ok && breakdownRes.ok && ratingRes.ok && sleepRes.ok) {
-          const trendJson = await trendRes.json();
-          const breakdownJson = await breakdownRes.json();
-
-          setTrendData(trendJson.data || []);
-          setBreakdownData(breakdownJson.data || []);
-        }
-
+        // Parse each response once
         if (trendRes.ok) {
           const trendJson = await trendRes.json();
           setTrendData(trendJson.data || []);

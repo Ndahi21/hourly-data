@@ -345,8 +345,11 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                       setHoveredRating(null);
                     }}
                   >
-                    <button className="text-[12px] border border-gray-300 px-[24px] py-[6px] font-medium text-gray-700
-                    hover:bg-gray-100 transition-colors rounded-[4px] mb-[4px]">
+                    <button 
+                      onClick={() => setReviewDayModalOpen(dayIndex)}
+                      className="text-[12px] border border-gray-300 px-[24px] py-[6px] font-medium text-gray-700
+                      hover:bg-gray-100 transition-colors rounded-[4px] mb-[4px]"
+                    >
                       Review Day
                     </button>
                     <div className="flex items-center gap-[4px]">
@@ -364,10 +367,6 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
                             onMouseLeave={() => setHoveredRating(null)}
                             onClick={() => handleDayRating(dayIndex, starValue)}
                           >
-                            <ReviewDay
-                              isOpen={reviewDayModalOpen === dayIndex}
-                              onClose={() => setReviewDayModalOpen(null)}
-                            />
                             <Star
                               className={`h-[18px] w-[18px] ${starValue <= activeValue ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                             />
@@ -382,6 +381,15 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
           </div>
         ))}
       </div>
+
+      {/* Review Day Modal - render once for all days */}
+      {days.map((_day, dayIndex) => (
+        <ReviewDay
+          key={dayIndex}
+          isOpen={reviewDayModalOpen === dayIndex}
+          onClose={() => setReviewDayModalOpen(null)}
+        />
+      ))}
     </div>
   );
 }

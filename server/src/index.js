@@ -236,6 +236,39 @@ app.get('/api/analytics/weekly-rating', (req, res) => {
   return res.json({ data });
 });
 
+// Analytics endpoint: Get sleep hours per day grouped by week
+app.get('/api/analytics/weekly-sleep', (req, res) => {
+  const { weeks = 8 } = req.query;
+  const numWeeks = Math.min(Math.max(parseInt(weeks), 1), 52);
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - (numWeeks * 7));
+  const startDateStr = startDate.toISOString().split('T')[0];
+
+  const data = db.prepare(`
+    SELECT 
+      DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
+      CASE CAST(strftime('%w', h.date) AS INTEGER)
+        WHEN 0 THEN 'Sun'
+        WHEN 1 THEN 'Mon'
+        WHEN 2 THEN 'Tue'
+        WHEN 3 THEN 'Wed'
+        WHEN 4 THEN 'Thu'
+        WHEN 5 THEN 'Fri'
+        WHEN 6 THEN 'Sat'
+      END as day,
+      COUNT(*) as hours
+    FROM hour_entries h
+    JOIN subjects s ON h.subject_id = s.id
+    WHERE h.date >= ?
+      AND s.name = 'Sleep'
+    GROUP BY h.date
+    ORDER BY weekStart ASC, h.date ASC
+  `).all(startDateStr);
+
+  return res.json({ data });
+});
+
 // Get routine template
 app.get('/api/routine', (_req, res) => {
   const entries = db.prepare(`
