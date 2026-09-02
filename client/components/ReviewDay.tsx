@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -14,14 +13,6 @@ interface ReviewDayProps {
 }
 
 export default function ReviewDay({ isOpen, onClose }: ReviewDayProps) {
-  // Pick values once when the modal opens, not on every re-render
-  const [summary] = useState(() => ({
-    dayWas: dayWas[Math.floor(Math.random() * dayWas.length)],
-    dayMood: dayMood[Math.floor(Math.random() * dayMood.length)],
-    food: food[Math.floor(Math.random() * food.length)],
-    activity: activity[Math.floor(Math.random() * activity.length)],
-  }));
-
   return (
     <>
       {isOpen && createPortal(
@@ -36,16 +27,24 @@ export default function ReviewDay({ isOpen, onClose }: ReviewDayProps) {
             </button>
 
             <p>Today's day was:</p>
-            <button className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px]">{summary.dayWas}</button>
+            {dayWas.map((day) => (
+              <button key={day} className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px] mr-[8px]">{day}</button>
+            ))}
 
             <p>Today's mood was:</p>
-            <button className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px]">{summary.dayMood}</button>
+            {dayMood.map((day) => (
+              <button key={day} className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px] mr-[8px]">{day}</button>
+            ))}
 
             <p>Today's food intake was:</p>
-            <button className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px]">{summary.food}</button>
+            {food.map((item) => (
+              <button key={item} className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px] mr-[8px]">{item}</button>
+            ))}
 
             <p>Today's activities were:</p>
-            <button className="bg-gray-200 px-[6px] py-[2px] rounded-[4px]">{summary.activity}</button>
+            {activity.map((item) => (
+              <button key={item} className="bg-gray-200 px-[6px] py-[2px] rounded-[4px] mb-[8px] mr-[8px]">{item}</button>
+            ))}
           </div>
         </div>,
         document.body
