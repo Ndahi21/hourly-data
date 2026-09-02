@@ -14,14 +14,6 @@ type HourAssignment = {
   subjectId: number;
 };
 
-const formatSlot = (slot: number) => {
-  const hour = Math.floor(slot / 2);
-  const minutes = slot % 2 === 0 ? '00' : '30';
-  const period = hour < 12 ? 'am' : 'pm';
-  const displayHour = hour % 12 || 12;
-  return `${displayHour}:${minutes} ${period}`;
-};
-
 export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   const [paintedHours, setPaintedHours] = useState<Record<string, HourAssignment>>({});
   const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, +1 = next week
@@ -43,13 +35,13 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   );
   const weekStartDate = useMemo(() => currentWeekStart.format('YYYY-MM-DD'), [currentWeekStart]);
 
-  const paintHourBox = async (dayIndex: number, slotIndex: number) => {
+  const paintHourBox = async (dayIndex: number, hourIndex: number) => {
     if (!selectedSubject) {
       return;
     }
 
     const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
-    const key = `${dayIndex}-${slotIndex}`;
+    const key = `${dayIndex}-${hourIndex}`;
 
     // Special handling for "Erase" - delete the hour entry
     if (selectedSubject.name === 'Erase') {
@@ -65,7 +57,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
         await fetch('/api/hour', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, slot: slotIndex }),
+          body: JSON.stringify({ date, hour: hourIndex }),
         });
       } catch (error) {
         console.error('Failed to delete hour:', error);
@@ -91,7 +83,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date,
-          slot: slotIndex,
+          hour: hourIndex,
           subjectId: selectedSubject.id,
         }),
       });
@@ -100,9 +92,9 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     }
   };
 
-  const eraseHourBox = async (dayIndex: number, slotIndex: number) => {
+  const eraseHourBox = async (dayIndex: number, hourIndex: number) => {
     const date = currentWeekStart.add(dayIndex, 'day').format('YYYY-MM-DD');
-    const key = `${dayIndex}-${slotIndex}`;
+    const key = `${dayIndex}-${hourIndex}`;
 
     // Optimistically update UI
     setPaintedHours((prev) => {
@@ -116,7 +108,7 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
       await fetch('/api/hour', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, slot: slotIndex }),
+        body: JSON.stringify({ date, hour: hourIndex }),
       });
     } catch (error) {
       console.error('Failed to delete hour:', error);
@@ -133,14 +125,14 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
           return;
         }
 
-        const data: { entries: Array<{ date: string; slot: number; subjectName: string; color: string; subjectId: number }> } = await response.json();
+        const data: { entries: Array<{ date: string; hour: number; subjectName: string; color: string; subjectId: number }> } = await response.json();
         
         // Convert API response to paintedHours format
         const hours: Record<string, HourAssignment> = {};
         data.entries.forEach((entry) => {
           const daysDiff = dayjs(entry.date).diff(currentWeekStart, 'day');
           if (daysDiff >= 0 && daysDiff < 7) {
-            const key = `${daysDiff}-${entry.slot}`;
+            const key = `${daysDiff}-${entry.hour}`;
             hours[key] = {
               color: entry.color,
               subjectName: entry.subjectName,
@@ -208,17 +200,17 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
   // User clicks then slides down to paint multiple hours:
   const [isPainting, setIsPainting] = useState(false);
 
-  const handleMouseDown = (dayIndex: number, slotIndex: number) => {
+  const handleMouseDown = (dayIndex: number, hourIndex: number) => {
     setIsPainting(true);
-    paintHourBox(dayIndex, slotIndex);
+    paintHourBox(dayIndex, hourIndex);
   };
 
-  const handleMouseEnter = (dayIndex: number, slotIndex: number) => {
+  const handleMouseEnter = (dayIndex: number, hourIndex: number) => {
     if (!isPainting) {
       return;
     }
 
-    paintHourBox(dayIndex, slotIndex);
+    paintHourBox(dayIndex, hourIndex);
   };
 
   useEffect(() => {
@@ -282,29 +274,48 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
       </div>
 
       <div className="pt-[24px] flex flex-row">
-        <div className="w-[40px] text-right pr-[8px] pt-[4px] text-[10px] flex flex-col">
-          {Array.from({ length: 48 }, (_, slotIndex) => (
-            <div key={slotIndex} className="h-[20px] leading-[20px]">
-              {slotIndex % 2 === 0 ? formatSlot(slotIndex) : ''}
-            </div>
-          ))}
+        <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
+          <div>1 am</div>
+          <div>2 am</div>
+          <div>3 am</div>
+          <div>4 am</div>
+          <div>5 am</div>
+          <div>6 am</div>
+          <div>7 am</div>
+          <div>8 am</div>
+          <div>9 am</div>
+          <div>10 am</div>
+          <div>11 am</div>
+          <div>12 pm</div>
+          <div>1 pm</div>
+          <div>2 pm</div>
+          <div>3 pm</div>
+          <div>4 pm</div>
+          <div>5 pm</div>
+          <div>6 pm</div>
+          <div>7 pm</div>
+          <div>8 pm</div>
+          <div>9 pm</div>
+          <div>10 pm</div>
+          <div>11 pm</div>
+          <div>12 am</div>
         </div>
 
         {days.map((day, dayIndex) => (
           <div key={dayIndex} className="">
-            {Array.from({ length: 48 }, (_, slotIndex) => (
+            {Array.from({ length: 24 }, (_, hourIndex) => (
               <div
-                key={slotIndex}
-                className="w-[100px] h-[20px] border border-solid border-black flex items-center justify-center cursor-pointer"
-                style={{ backgroundColor: paintedHours[`${dayIndex}-${slotIndex}`]?.color ?? '#ffffff' }}
-                onMouseDown={() => handleMouseDown(dayIndex, slotIndex)}
-                onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
+                key={hourIndex}
+                className="w-[100px] h-[30px] border border-solid border-black flex items-center justify-center cursor-pointer"
+                style={{ backgroundColor: paintedHours[`${dayIndex}-${hourIndex}`]?.color ?? '#ffffff' }}
+                onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
+                onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}
                 onMouseUp={() => setIsPainting(false)}
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  eraseHourBox(dayIndex, slotIndex);
+                  eraseHourBox(dayIndex, hourIndex);
                 }}
-                title={paintedHours[`${dayIndex}-${slotIndex}`]?.subjectName ?? `${day} - ${formatSlot(slotIndex)}`}
+                title={paintedHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
               />
             ))}
             <div className="text-[16px] text-center mt-[4px] relative">
