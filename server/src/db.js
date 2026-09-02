@@ -21,16 +21,57 @@ db.exec(`
   );
 `);
 
-db.exec(`
+const createHourEntriesTable = `
   CREATE TABLE IF NOT EXISTS hour_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
-    hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
+    slot INTEGER NOT NULL CHECK (slot >= 0 AND slot <= 47),
     subject_id INTEGER NOT NULL REFERENCES subjects(id),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    UNIQUE(date, hour)
+    UNIQUE(date, slot)
   );
-`);
+`;
+
+const createRoutineTemplatesTable = `
+  CREATE TABLE IF NOT EXISTS routine_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+    slot INTEGER NOT NULL CHECK (slot >= 0 AND slot <= 47),
+    subject_id INTEGER NOT NULL REFERENCES subjects(id),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(day_of_week, slot)
+  );
+`;
+
+const migrateHourlyTable = (tableName, createTable, copyEntries) => {
+  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+
+  if (columns.length === 0) {
+    db.exec(createTable);
+    return;
+  }
+
+  if (columns.some((column) => column.name === 'slot')) {
+    return;
+  }
+
+  db.transaction(() => {
+    db.exec(`ALTER TABLE ${tableName} RENAME TO ${tableName}_hourly_backup`);
+    db.exec(createTable);
+    db.exec(copyEntries);
+    db.exec(`DROP TABLE ${tableName}_hourly_backup`);
+  })();
+};
+
+migrateHourlyTable(
+  'hour_entries',
+  createHourEntriesTable,
+  `
+    INSERT INTO hour_entries (id, date, slot, subject_id, created_at)
+    SELECT id, date, hour * 2, subject_id, created_at
+    FROM hour_entries_hourly_backup
+  `
+);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS day_ratings (
@@ -40,16 +81,15 @@ db.exec(`
   );
 `);
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS routine_templates (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
-    hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
-    subject_id INTEGER NOT NULL REFERENCES subjects(id),
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    UNIQUE(day_of_week, hour)
-  );
-`);
+migrateHourlyTable(
+  'routine_templates',
+  createRoutineTemplatesTable,
+  `
+    INSERT INTO routine_templates (id, day_of_week, slot, subject_id, created_at)
+    SELECT id, day_of_week, hour * 2, subject_id, created_at
+    FROM routine_templates_hourly_backup
+  `
+);
 
 const defaultSubjects = [
   { name: 'Sleep', color: '#535353' },

@@ -12,6 +12,14 @@ type HourAssignment = {
   subjectId: number;
 };
 
+const formatSlot = (slot: number) => {
+  const hour = Math.floor(slot / 2);
+  const minutes = slot % 2 === 0 ? '00' : '30';
+  const period = hour < 12 ? 'am' : 'pm';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${period}`;
+};
+
 export default function Routine({ selectedSubject }: RoutineProps) {
   const [routineHours, setRoutineHours] = useState<Record<string, HourAssignment>>({});
   const [isPainting, setIsPainting] = useState(false);
@@ -28,12 +36,12 @@ export default function Routine({ selectedSubject }: RoutineProps) {
           return;
         }
 
-        const data: { entries: Array<{ dayOfWeek: number; hour: number; subjectName: string; color: string; subjectId: number }> } = await response.json();
+        const data: { entries: Array<{ dayOfWeek: number; slot: number; subjectName: string; color: string; subjectId: number }> } = await response.json();
         
         // Convert API response to routineHours format
         const hours: Record<string, HourAssignment> = {};
         data.entries.forEach((entry) => {
-          const key = `${entry.dayOfWeek}-${entry.hour}`;
+          const key = `${entry.dayOfWeek}-${entry.slot}`;
           hours[key] = {
             color: entry.color,
             subjectName: entry.subjectName,
@@ -51,12 +59,12 @@ export default function Routine({ selectedSubject }: RoutineProps) {
     loadRoutine();
   }, []);
 
-  const paintHourBox = (dayIndex: number, hourIndex: number) => {
+  const paintHourBox = (dayIndex: number, slotIndex: number) => {
     if (!selectedSubject) {
       return;
     }
 
-    const key = `${dayIndex}-${hourIndex}`;
+    const key = `${dayIndex}-${slotIndex}`;
 
     // Special handling for "Erase" - delete the hour entry
     if (selectedSubject.name === 'Erase') {
@@ -79,8 +87,8 @@ export default function Routine({ selectedSubject }: RoutineProps) {
     }));
   };
 
-  const eraseHourBox = (dayIndex: number, hourIndex: number) => {
-    const key = `${dayIndex}-${hourIndex}`;
+  const eraseHourBox = (dayIndex: number, slotIndex: number) => {
+    const key = `${dayIndex}-${slotIndex}`;
     setRoutineHours((prev) => {
       const updated = { ...prev };
       delete updated[key];
@@ -93,10 +101,10 @@ export default function Routine({ selectedSubject }: RoutineProps) {
     try {
       // Convert routineHours to API format
       const entries = Object.entries(routineHours).map(([key, value]) => {
-        const [dayOfWeek, hour] = key.split('-').map(Number);
+        const [dayOfWeek, slot] = key.split('-').map(Number);
         return {
           dayOfWeek,
-          hour,
+          slot,
           subjectId: value.subjectId,
         };
       });
@@ -116,16 +124,16 @@ export default function Routine({ selectedSubject }: RoutineProps) {
     }
   };
 
-  const handleMouseDown = (dayIndex: number, hourIndex: number) => {
+  const handleMouseDown = (dayIndex: number, slotIndex: number) => {
     setIsPainting(true);
-    paintHourBox(dayIndex, hourIndex);
+    paintHourBox(dayIndex, slotIndex);
   };
 
-  const handleMouseEnter = (dayIndex: number, hourIndex: number) => {
+  const handleMouseEnter = (dayIndex: number, slotIndex: number) => {
     if (!isPainting) {
       return;
     }
-    paintHourBox(dayIndex, hourIndex);
+    paintHourBox(dayIndex, slotIndex);
   };
 
   useEffect(() => {
@@ -168,29 +176,29 @@ export default function Routine({ selectedSubject }: RoutineProps) {
       </div>
 
       <div className="flex flex-row">
-        <div className="w-[60px] text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
-          {Array.from({ length: 24 }, (_, i) => (
-            <div key={i}>
-              {i === 0 ? '1 am' : i < 11 ? `${i + 1} am` : i === 11 ? '12 pm' : i < 23 ? `${i - 11} pm` : '12 am'}
+        <div className="w-[60px] text-right pr-[8px] pt-[4px] text-[10px] flex flex-col">
+          {Array.from({ length: 48 }, (_, slotIndex) => (
+            <div key={slotIndex} className="h-[20px] leading-[20px]">
+              {slotIndex % 2 === 0 ? formatSlot(slotIndex) : ''}
             </div>
           ))}
         </div>
 
         {days.map((day, dayIndex) => (
           <div key={dayIndex} className="">
-            {Array.from({ length: 24 }, (_, hourIndex) => (
+            {Array.from({ length: 48 }, (_, slotIndex) => (
               <div
-                key={hourIndex}
-                className="w-[100px] h-[30px] border border-solid border-black flex items-center justify-center cursor-pointer"
-                style={{ backgroundColor: routineHours[`${dayIndex}-${hourIndex}`]?.color ?? '#ffffff' }}
-                onMouseDown={() => handleMouseDown(dayIndex, hourIndex)}
-                onMouseEnter={() => handleMouseEnter(dayIndex, hourIndex)}
+                key={slotIndex}
+                className="w-[100px] h-[20px] border border-solid border-black flex items-center justify-center cursor-pointer"
+                style={{ backgroundColor: routineHours[`${dayIndex}-${slotIndex}`]?.color ?? '#ffffff' }}
+                onMouseDown={() => handleMouseDown(dayIndex, slotIndex)}
+                onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
                 onMouseUp={() => setIsPainting(false)}
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  eraseHourBox(dayIndex, hourIndex);
+                  eraseHourBox(dayIndex, slotIndex);
                 }}
-                title={routineHours[`${dayIndex}-${hourIndex}`]?.subjectName ?? `${day} - ${hourIndex}:00`}
+                title={routineHours[`${dayIndex}-${slotIndex}`]?.subjectName ?? `${day} - ${formatSlot(slotIndex)}`}
               />
             ))}
           </div>

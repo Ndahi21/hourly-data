@@ -40,18 +40,18 @@ app.post('/api/subjects', (req, res) => {
 });
 
 app.put('/api/hour', (req, res) => {
-  const { date, hour, subjectId } = req.body ?? {};
+  const { date, slot, subjectId } = req.body ?? {};
 
-  if (!date || hour === undefined || !subjectId) {
-    return res.status(400).json({ error: 'date, hour, and subjectId are required' });
+  if (!date || slot === undefined || !subjectId) {
+    return res.status(400).json({ error: 'date, slot, and subjectId are required' });
   }
 
-  const numericHour = Number(hour);
+  const numericSlot = Number(slot);
   const numericSubjectId = Number(subjectId);
   const cleanDate = String(date);
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || Number.isNaN(numericHour) || numericHour < 0 || numericHour > 23) {
-    return res.status(400).json({ error: 'invalid date or hour' });
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericSlot) || numericSlot < 0 || numericSlot > 47) {
+    return res.status(400).json({ error: 'invalid date or slot' });
   }
 
   if (Number.isNaN(numericSubjectId)) {
@@ -65,30 +65,30 @@ app.put('/api/hour', (req, res) => {
   }
 
   db.prepare(`
-    INSERT INTO hour_entries (date, hour, subject_id)
+    INSERT INTO hour_entries (date, slot, subject_id)
     VALUES (?, ?, ?)
-    ON CONFLICT(date, hour) DO UPDATE SET
+    ON CONFLICT(date, slot) DO UPDATE SET
       subject_id = excluded.subject_id
-  `).run(cleanDate, numericHour, numericSubjectId);
+  `).run(cleanDate, numericSlot, numericSubjectId);
 
   return res.json({ saved: true });
 });
 
 app.delete('/api/hour', (req, res) => {
-  const { date, hour } = req.body ?? {};
+  const { date, slot } = req.body ?? {};
 
-  if (!date || hour === undefined) {
-    return res.status(400).json({ error: 'date and hour are required' });
+  if (!date || slot === undefined) {
+    return res.status(400).json({ error: 'date and slot are required' });
   }
 
-  const numericHour = Number(hour);
+  const numericSlot = Number(slot);
   const cleanDate = String(date);
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || Number.isNaN(numericHour) || numericHour < 0 || numericHour > 23) {
-    return res.status(400).json({ error: 'invalid date or hour' });
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericSlot) || numericSlot < 0 || numericSlot > 47) {
+    return res.status(400).json({ error: 'invalid date or slot' });
   }
 
-  db.prepare('DELETE FROM hour_entries WHERE date = ? AND hour = ?').run(cleanDate, numericHour);
+  db.prepare('DELETE FROM hour_entries WHERE date = ? AND slot = ?').run(cleanDate, numericSlot);
 
   return res.json({ deleted: true });
 });
@@ -105,7 +105,7 @@ app.get('/api/week', (req, res) => {
   const entries = db.prepare(`
     SELECT 
       h.date,
-      h.hour,
+      h.slot,
       s.name AS subjectName,
       s.color,
       s.id AS subjectId
@@ -113,7 +113,7 @@ app.get('/api/week', (req, res) => {
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= date(?)
       AND h.date < date(?, '+7 day')
-    ORDER BY h.date ASC, h.hour ASC
+    ORDER BY h.date ASC, h.slot ASC
   `).all(start, start);
 
   return res.json({ entries });
@@ -168,7 +168,7 @@ app.get('/api/analytics/weekly-trend', (req, res) => {
       DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
-      COUNT(*) as hours
+      COUNT(*) * 0.5 as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?
@@ -194,7 +194,7 @@ app.get('/api/analytics/weekly-breakdown', (req, res) => {
       DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
-      COUNT(*) as hours
+      COUNT(*) * 0.5 as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?
@@ -257,7 +257,7 @@ app.get('/api/analytics/weekly-sleep', (req, res) => {
         WHEN 5 THEN 'Fri'
         WHEN 6 THEN 'Sat'
       END as day,
-      COUNT(*) as hours
+      COUNT(*) * 0.5 as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?
@@ -274,13 +274,13 @@ app.get('/api/routine', (_req, res) => {
   const entries = db.prepare(`
     SELECT 
       r.day_of_week as dayOfWeek,
-      r.hour,
+      r.slot,
       s.name as subjectName,
       s.color,
       s.id as subjectId
     FROM routine_templates r
     JOIN subjects s ON r.subject_id = s.id
-    ORDER BY r.day_of_week ASC, r.hour ASC
+    ORDER BY r.day_of_week ASC, r.slot ASC
   `).all();
 
   return res.json({ entries });
@@ -301,24 +301,24 @@ app.put('/api/routine', (req, res) => {
 
       // Insert new routine entries
       const insertStmt = db.prepare(`
-        INSERT INTO routine_templates (day_of_week, hour, subject_id)
+        INSERT INTO routine_templates (day_of_week, slot, subject_id)
         VALUES (?, ?, ?)
       `);
 
       entries.forEach(entry => {
-        const { dayOfWeek, hour, subjectId } = entry;
+        const { dayOfWeek, slot, subjectId } = entry;
 
         if (
           typeof dayOfWeek !== 'number' ||
-          typeof hour !== 'number' ||
+          typeof slot !== 'number' ||
           typeof subjectId !== 'number' ||
           dayOfWeek < 0 || dayOfWeek > 6 ||
-          hour < 0 || hour > 23
+          !Number.isInteger(slot) || slot < 0 || slot > 47
         ) {
           throw new Error('Invalid entry format');
         }
 
-        insertStmt.run(dayOfWeek, hour, subjectId);
+        insertStmt.run(dayOfWeek, slot, subjectId);
       });
     })();
 
