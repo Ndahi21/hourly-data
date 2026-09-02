@@ -40,18 +40,18 @@ app.post('/api/subjects', (req, res) => {
 });
 
 app.put('/api/hour', (req, res) => {
-  const { date, slot, subjectId } = req.body ?? {};
+  const { date, hour, subjectId } = req.body ?? {};
 
-  if (!date || slot === undefined || !subjectId) {
-    return res.status(400).json({ error: 'date, slot, and subjectId are required' });
+  if (!date || hour === undefined || !subjectId) {
+    return res.status(400).json({ error: 'date, hour, and subjectId are required' });
   }
 
-  const numericSlot = Number(slot);
+  const numericHour = Number(hour);
   const numericSubjectId = Number(subjectId);
   const cleanDate = String(date);
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericSlot) || numericSlot < 0 || numericSlot > 47) {
-    return res.status(400).json({ error: 'invalid date or slot' });
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericHour) || numericHour < 0 || numericHour > 23) {
+    return res.status(400).json({ error: 'invalid date or hour' });
   }
 
   if (Number.isNaN(numericSubjectId)) {
@@ -65,30 +65,30 @@ app.put('/api/hour', (req, res) => {
   }
 
   db.prepare(`
-    INSERT INTO hour_entries (date, slot, subject_id)
+    INSERT INTO hour_entries (date, hour, subject_id)
     VALUES (?, ?, ?)
-    ON CONFLICT(date, slot) DO UPDATE SET
+    ON CONFLICT(date, hour) DO UPDATE SET
       subject_id = excluded.subject_id
-  `).run(cleanDate, numericSlot, numericSubjectId);
+  `).run(cleanDate, numericHour, numericSubjectId);
 
   return res.json({ saved: true });
 });
 
 app.delete('/api/hour', (req, res) => {
-  const { date, slot } = req.body ?? {};
+  const { date, hour } = req.body ?? {};
 
-  if (!date || slot === undefined) {
-    return res.status(400).json({ error: 'date and slot are required' });
+  if (!date || hour === undefined) {
+    return res.status(400).json({ error: 'date and hour are required' });
   }
 
-  const numericSlot = Number(slot);
+  const numericHour = Number(hour);
   const cleanDate = String(date);
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericSlot) || numericSlot < 0 || numericSlot > 47) {
-    return res.status(400).json({ error: 'invalid date or slot' });
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || !Number.isInteger(numericHour) || numericHour < 0 || numericHour > 23) {
+    return res.status(400).json({ error: 'invalid date or hour' });
   }
 
-  db.prepare('DELETE FROM hour_entries WHERE date = ? AND slot = ?').run(cleanDate, numericSlot);
+  db.prepare('DELETE FROM hour_entries WHERE date = ? AND hour = ?').run(cleanDate, numericHour);
 
   return res.json({ deleted: true });
 });
@@ -105,7 +105,7 @@ app.get('/api/week', (req, res) => {
   const entries = db.prepare(`
     SELECT 
       h.date,
-      h.slot,
+      h.hour,
       s.name AS subjectName,
       s.color,
       s.id AS subjectId
@@ -113,7 +113,7 @@ app.get('/api/week', (req, res) => {
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= date(?)
       AND h.date < date(?, '+7 day')
-    ORDER BY h.date ASC, h.slot ASC
+    ORDER BY h.date ASC, h.hour ASC
   `).all(start, start);
 
   return res.json({ entries });
@@ -168,7 +168,7 @@ app.get('/api/analytics/weekly-trend', (req, res) => {
       DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
-      COUNT(*) * 0.5 as hours
+      COUNT(*) as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?
@@ -194,7 +194,7 @@ app.get('/api/analytics/weekly-breakdown', (req, res) => {
       DATE(h.date, '-' || ((CAST(strftime('%w', h.date) AS INTEGER) + 1) % 7) || ' days') as weekStart,
       s.name as subject,
       s.color,
-      COUNT(*) * 0.5 as hours
+      COUNT(*) as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?
@@ -257,7 +257,7 @@ app.get('/api/analytics/weekly-sleep', (req, res) => {
         WHEN 5 THEN 'Fri'
         WHEN 6 THEN 'Sat'
       END as day,
-      COUNT(*) * 0.5 as hours
+      COUNT(*) as hours
     FROM hour_entries h
     JOIN subjects s ON h.subject_id = s.id
     WHERE h.date >= ?

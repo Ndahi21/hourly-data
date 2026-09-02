@@ -25,10 +25,10 @@ const createHourEntriesTable = `
   CREATE TABLE IF NOT EXISTS hour_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
-    slot INTEGER NOT NULL CHECK (slot >= 0 AND slot <= 47),
+    hour INTEGER NOT NULL CHECK (hour >= 0 AND hour <= 23),
     subject_id INTEGER NOT NULL REFERENCES subjects(id),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    UNIQUE(date, slot)
+    UNIQUE(date, hour)
   );
 `;
 
@@ -43,35 +43,24 @@ const createRoutineTemplatesTable = `
   );
 `;
 
-const migrateHourlyTable = (tableName, createTable, copyEntries) => {
-  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+const hourEntryColumns = db.prepare('PRAGMA table_info(hour_entries)').all();
 
-  if (columns.length === 0) {
-    db.exec(createTable);
-    return;
-  }
-
-  if (columns.some((column) => column.name === 'slot')) {
-    return;
-  }
-
+if (hourEntryColumns.length === 0) {
+  db.exec(createHourEntriesTable);
+} else if (hourEntryColumns.some((column) => column.name === 'slot')) {
   db.transaction(() => {
-    db.exec(`ALTER TABLE ${tableName} RENAME TO ${tableName}_hourly_backup`);
-    db.exec(createTable);
-    db.exec(copyEntries);
-    db.exec(`DROP TABLE ${tableName}_hourly_backup`);
+    db.exec('ALTER TABLE hour_entries RENAME TO hour_entries_half_hour_backup');
+    db.exec(createHourEntriesTable);
+    // Prior hourly data lives in even slots; use a :30 slot only when the hour is otherwise empty.
+    db.exec(`
+      INSERT OR IGNORE INTO hour_entries (date, hour, subject_id, created_at)
+      SELECT date, slot / 2, subject_id, created_at
+      FROM hour_entries_half_hour_backup
+      ORDER BY slot % 2 ASC, id ASC
+    `);
+    db.exec('DROP TABLE hour_entries_half_hour_backup');
   })();
-};
-
-migrateHourlyTable(
-  'hour_entries',
-  createHourEntriesTable,
-  `
-    INSERT INTO hour_entries (id, date, slot, subject_id, created_at)
-    SELECT id, date, hour * 2, subject_id, created_at
-    FROM hour_entries_hourly_backup
-  `
-);
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS day_ratings (
@@ -81,15 +70,22 @@ db.exec(`
   );
 `);
 
-migrateHourlyTable(
-  'routine_templates',
-  createRoutineTemplatesTable,
-  `
-    INSERT INTO routine_templates (id, day_of_week, slot, subject_id, created_at)
-    SELECT id, day_of_week, hour * 2, subject_id, created_at
-    FROM routine_templates_hourly_backup
-  `
-);
+const routineTemplateColumns = db.prepare('PRAGMA table_info(routine_templates)').all();
+
+if (routineTemplateColumns.length === 0) {
+  db.exec(createRoutineTemplatesTable);
+} else if (routineTemplateColumns.some((column) => column.name === 'hour')) {
+  db.transaction(() => {
+    db.exec('ALTER TABLE routine_templates RENAME TO routine_templates_hourly_backup');
+    db.exec(createRoutineTemplatesTable);
+    db.exec(`
+      INSERT INTO routine_templates (id, day_of_week, slot, subject_id, created_at)
+      SELECT id, day_of_week, hour * 2, subject_id, created_at
+      FROM routine_templates_hourly_backup
+    `);
+    db.exec('DROP TABLE routine_templates_hourly_backup');
+  })();
+}
 
 const defaultSubjects = [
   { name: 'Sleep', color: '#535353' },
