@@ -175,7 +175,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
       </div>
 
       <div className="flex flex-row">
-        <div className="text-right pr-[8px] pt-[24px] text-[12px] gap-[16px] flex flex-col">
+        <div className="text-right pr-[8px] pt-[36px] text-[12px] gap-[30px] flex flex-col">
           <div>1 am</div>
           <div>2 am</div>
           <div>3 am</div>
@@ -204,21 +204,27 @@ export default function Routine({ selectedSubject }: RoutineProps) {
 
         {days.map((day, dayIndex) => (
           <div key={dayIndex} className="">
-            {Array.from({ length: 48 }, (_, slotIndex) => (
-              <div
-                key={slotIndex}
-                className="w-[100px] h-[20px] border border-solid border-black flex items-center justify-center cursor-pointer"
-                style={{ backgroundColor: routineHours[`${dayIndex}-${slotIndex}`]?.color ?? '#ffffff' }}
-                onMouseDown={() => handleMouseDown(dayIndex, slotIndex)}
-                onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
-                onMouseUp={() => setIsPainting(false)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  eraseHourBox(dayIndex, slotIndex);
-                }}
-                title={routineHours[`${dayIndex}-${slotIndex}`]?.subjectName ?? `${day} - ${formatSlot(slotIndex)}`}
-              />
-            ))}
+            {Array.from({ length: 48 }, (_, slotIndex) => {
+              // Every even slot is the top of a new hour (30 min slots)
+              const isHourStart = slotIndex % 2 === 0;
+              return (
+                <div
+                  key={slotIndex}
+                  className={`w-[100px] h-[24px] border-black border-r border-t-black cursor-pointer ${
+                    isHourStart ? 'border-t-2 border-t-black' : 'border-t border-t-gray-900'
+                  } ${slotIndex === 47 ? 'border-b border-b-black' : ''}`}
+                  style={{ backgroundColor: routineHours[`${dayIndex}-${slotIndex}`]?.color || 'transparent' }}
+                  onMouseDown={() => handleMouseDown(dayIndex, slotIndex)}
+                  onMouseEnter={() => handleMouseEnter(dayIndex, slotIndex)}
+                  onMouseUp={() => setIsPainting(false)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    eraseHourBox(dayIndex, slotIndex);
+                  }}
+                  title={routineHours[`${dayIndex}-${slotIndex}`]?.subjectName ?? `${day} - ${formatSlot(slotIndex)}`}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
