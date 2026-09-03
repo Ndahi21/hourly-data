@@ -14,10 +14,9 @@ type HourAssignment = {
 
 const formatSlot = (slot: number) => {
   const hour = Math.floor(slot / 2);
-  const minutes = slot % 2 === 0 ? '00' : '30';
+  const displayHour = hour === 0 ? 1 : hour < 12 ? hour : hour - 12;
   const period = hour < 12 ? 'am' : 'pm';
-  const displayHour = hour % 12 || 12;
-  return `${displayHour}:${minutes} ${period}`;
+  return `${displayHour} ${period}`;
 };
 
 export default function Routine({ selectedSubject }: RoutineProps) {
@@ -167,7 +166,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
           <div className="w-[60px]"></div>
           {days.map((day, dayIndex) => (
             <div key={dayIndex} className="w-[100px] flex justify-center text-center">
-              <h3 className="text-[16px] font-bold mb-[2px]">
+              <h3 className="font-bold mb-[2px]">
                 {day}
               </h3>
             </div>
@@ -176,12 +175,31 @@ export default function Routine({ selectedSubject }: RoutineProps) {
       </div>
 
       <div className="flex flex-row">
-        <div className="w-[60px] text-right pr-[8px] pt-[4px] text-[10px] flex flex-col">
-          {Array.from({ length: 48 }, (_, slotIndex) => (
-            <div key={slotIndex} className="h-[20px] leading-[20px]">
-              {slotIndex % 2 === 0 ? formatSlot(slotIndex) : ''}
-            </div>
-          ))}
+        <div className="text-right pr-[8px] pt-[24px] text-[12px] gap-[16px] flex flex-col">
+          <div>1 am</div>
+          <div>2 am</div>
+          <div>3 am</div>
+          <div>4 am</div>
+          <div>5 am</div>
+          <div>6 am</div>
+          <div>7 am</div>
+          <div>8 am</div>
+          <div>9 am</div>
+          <div>10 am</div>
+          <div>11 am</div>
+          <div>12 pm</div>
+          <div>1 pm</div>
+          <div>2 pm</div>
+          <div>3 pm</div>
+          <div>4 pm</div>
+          <div>5 pm</div>
+          <div>6 pm</div>
+          <div>7 pm</div>
+          <div>8 pm</div>
+          <div>9 pm</div>
+          <div>10 pm</div>
+          <div>11 pm</div>
+          <div>12 am</div>
         </div>
 
         {days.map((day, dayIndex) => (
