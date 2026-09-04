@@ -133,11 +133,11 @@ export default function SideBar({ selectedSubject, onSelectSubject, isRoutineMod
         <button
           type="button"
           onClick={onToggleRoutineMode}
-          className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
+          className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
         >
           <CalendarSync className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-            {isRoutineMode ? 'Go Back' : 'Edit Routine'}
+          <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
+            {isRoutineMode ? 'Go Back' : 'Compare Routine'}
           </p>
         </button>
         <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">

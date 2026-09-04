@@ -240,8 +240,44 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     <div className="p-[20px] pl-[340px]">
       <div className="fixed top-[28px] left-[340px] right-0 z-50 bg-white">
         {/* Week navigation header with label */}
-        <div className="flex items-center justify-center mb-[8px]">
-          <span className="text-[14px] font-semibold text-gray-600">{getWeekLabel()}</span>
+        <div className="flex mb-[8px]">
+          <button
+            type="button"
+            // onClick={onToggleRoutineMode}
+            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
+          >
+            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
+              Time Table
+            </p>
+          </button>
+          <button
+            type="button"
+            // onClick={onToggleRoutineMode}
+            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
+          >
+            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
+              Edit Routine
+            </p>
+          </button>
+          <button
+            type="button"
+            // onClick={onToggleRoutineMode}
+            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
+          >
+            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
+              10K Challenge
+            </p>
+          </button>
+          <button
+            type="button"
+            // onClick={onToggleRoutineMode}
+            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
+          >
+            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
+              Task Master
+            </p>
+          </button>
+          <span className="text-[14px] pl-[28px] font-semibold text-gray-600">{getWeekLabel()}</span>
         </div>
         <div className="flex">
           <div className="justify-center w-[40px] flex items-center">
