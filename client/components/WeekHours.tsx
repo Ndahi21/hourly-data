@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import ReviewDay from './ReviewDay';
 import dayjs from 'dayjs';
@@ -6,6 +6,7 @@ import { Subject } from './HourColors';
 
 type WeekHoursProps = {
   selectedSubject: Subject | null;
+  currentWeekStart: dayjs.Dayjs;
 };
 
 type HourAssignment = {
@@ -14,25 +15,15 @@ type HourAssignment = {
   subjectId: number;
 };
 
-export default function WeekHours({ selectedSubject }: WeekHoursProps) {
+export default function WeekHours({ selectedSubject, currentWeekStart }: WeekHoursProps) {
   const [paintedHours, setPaintedHours] = useState<Record<string, HourAssignment>>({});
-  const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, +1 = next week
   const [reviewOpenDay, setReviewOpenDay] = useState<number | null>(null);
   const [dayRatings, setDayRatings] = useState<Record<number, number>>({});
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [reviewDayModalOpen, setReviewDayModalOpen] = useState<number | null>(null);
 
   const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  const startDate = dayjs('2026-01-17');
 
-  const today = dayjs();
-
-  const daysSinceStart = today.diff(startDate, "day");
-  const weeksSinceStart = Math.floor(daysSinceStart / 7);
-  const currentWeekStart = useMemo(
-    () => startDate.add((weeksSinceStart + weekOffset) * 7, "day"),
-    [weeksSinceStart, weekOffset]
-  );
   const weekStartDate = useMemo(() => currentWeekStart.format('YYYY-MM-DD'), [currentWeekStart]);
 
   const paintHourBox = async (dayIndex: number, hourIndex: number) => {
@@ -219,97 +210,10 @@ export default function WeekHours({ selectedSubject }: WeekHoursProps) {
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
-
-  const goToPreviousWeek = () => {
-    setWeekOffset((prev) => prev - 1);
-  };
-
-  const goToNextWeek = () => {
-    setWeekOffset((prev) => prev + 1);
-  };
-
-  const getWeekLabel = () => {
-    if (weekOffset === 0) return 'This Week';
-    if (weekOffset === -1) return 'Last Week';
-    if (weekOffset === 1) return 'Next Week';
-    if (weekOffset < 0) return `${Math.abs(weekOffset)} Weeks Ago`;
-    return `${weekOffset} Weeks Ahead`;
-  };
   
   return (
-    <div className="p-[20px] pl-[340px]">
-      <div className="fixed top-[28px] left-[340px] right-0 z-50 bg-white">
-        {/* Week navigation header with label */}
-        <div className="flex mb-[8px]">
-          <button
-            type="button"
-            // onClick={onToggleRoutineMode}
-            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
-          >
-            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-              Time Table
-            </p>
-          </button>
-          <button
-            type="button"
-            // onClick={onToggleRoutineMode}
-            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
-          >
-            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-              Edit Routine
-            </p>
-          </button>
-          <button
-            type="button"
-            // onClick={onToggleRoutineMode}
-            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
-          >
-            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-              10K Challenge
-            </p>
-          </button>
-          <button
-            type="button"
-            // onClick={onToggleRoutineMode}
-            className="border border-[2px] border-solid border-[#777777] p-[4px] text-center cursor-pointer w-[160px] font-bold hover:bg-gray-100"
-          >
-            <p className="mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-              Task Master
-            </p>
-          </button>
-          <span className="text-[14px] pl-[28px] font-semibold text-gray-600">{getWeekLabel()}</span>
-        </div>
-        <div className="flex">
-          <div className="justify-center w-[40px] flex items-center">
-            <div 
-              onClick={goToPreviousWeek}
-              className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center"
-            >
-              <ChevronLeft className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
-            </div>
-          </div>
-          {days.map((day, dayIndex) => (
-            <div key={dayIndex} className="w-[100px]">
-              <h3 className="text-[16px] mb-[2px] flex justify-center">
-                {day}
-              </h3>
-              <h3 className="text-[18px] font-bold mb-[10px] flex justify-center">
-                {currentWeekStart.add(dayIndex, "day").format('MMM DD')}
-              </h3>
-            </div>
-          ))}
-          <div className="justify-center w-[40px] flex items-center">
-            <div 
-              onClick={goToNextWeek}
-              className="bg-white group hover:border hover:cursor-pointer hover:border-gray-400 duration-400 transition-all rounded-full w-[40px] h-[40px] flex items-center justify-center"
-            >
-            <ChevronRight className="w-[24px] h-[24px] group-hover:cursor-pointer group-hover:scale-110" />
-          </div>
-        </div>
-        </div>
-      </div>
-
-      <div className="pt-[24px] flex flex-row">
+    <div className="pt-[24px]">
+      <div className="flex flex-row">
         <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
           <div>1 am</div>
           <div>2 am</div>

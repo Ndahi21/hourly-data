@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import HourColors, { Subject } from './HourColors';
-import { Users, CalendarSync } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 const defaultSubjects: Subject[] = [
   { name: 'Erase', color: '#ffffff' },
@@ -43,11 +43,9 @@ const colorThemes = [
 type SideBarProps = {
   selectedSubject: Subject | null;
   onSelectSubject: (subject: Subject) => void;
-  isRoutineMode: boolean;
-  onToggleRoutineMode: () => void;
 };
 
-export default function SideBar({ selectedSubject, onSelectSubject, isRoutineMode, onToggleRoutineMode }: SideBarProps) {
+export default function SideBar({ selectedSubject, onSelectSubject }: SideBarProps) {
   const [subjects, setSubjects] = useState<Subject[]>([{ name: 'Erase', color: '#ffffff' }, ...defaultSubjects]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -130,20 +128,17 @@ export default function SideBar({ selectedSubject, onSelectSubject, isRoutineMod
           + Add Subject
         </button>
 
-        <button
-          type="button"
-          onClick={onToggleRoutineMode}
-          className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
-        >
-          <CalendarSync className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">
-            {isRoutineMode ? 'Go Back' : 'Compare Routine'}
-          </p>
-        </button>
         <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
           <Users className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
           <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
         </div>
+         <button
+          type="button"
+          className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
+        >
+          <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Compare Routine
+          </p>
+        </button>
       </div>
       </div>
 
