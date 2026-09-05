@@ -117,29 +117,39 @@ export default function SideBar({ selectedSubject, onSelectSubject }: SideBarPro
   return (
     <>
       <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[300px] h-[100%] font-sans bg-white z-[1000]">
-      <HourColors subjects={subjects} selectedSubject={selectedSubject} onSelectSubject={onSelectSubject} />
-
-      <div className="ml-[20px]">
-        <button
-          type="button"
-          onClick={() => setIsAddOpen(true)}
-          className="border border-[2px] border-solid border-[#777777] p-[10px] py-[4px] text-center bg-gray-200 cursor-pointer mt-[12px] mb-[24px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-300"
-        >
-          + Add Subject
-        </button>
-
-        <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-          <Users className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-          <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
+        <div className="flex flex-row items-center justify-start gap-[10px]">
+          <h1 className="text-[40px] mb-2 font-bold">Hourly Data</h1>
         </div>
-         <button
-          type="button"
-          className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
-        >
-          <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Compare Routine
-          </p>
-        </button>
-      </div>
+        <HourColors subjects={subjects} selectedSubject={selectedSubject} onSelectSubject={onSelectSubject} />
+
+        <div className="ml-[20px]">
+          <button
+            type="button"
+            onClick={() => setIsAddOpen(true)}
+            className="border border-[2px] border-solid border-[#777777] p-[10px] py-[4px] text-center bg-gray-200 cursor-pointer mt-[12px] mb-[24px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-300"
+          >
+            + Add Subject
+          </button>
+
+          <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <Users className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
+          </div>
+          <button
+            type="button"
+            className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
+          >
+            <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine
+            </p>
+          </button>
+          <button
+            type="button"
+            className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
+          >
+            <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">10K Challenge
+            </p>
+          </button>
+        </div>
       </div>
 
       {isAddOpen && (

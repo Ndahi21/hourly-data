@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import WeekHours from '../components/WeekHours';
 import Routine from '../components/Routine';
 import SideBar from '../components/SideBar';
-import TopBar from '../components/TopBar';
 import Analytics from '../components/Analytics';
 import { Subject } from '../components/HourColors';
 
@@ -31,17 +30,14 @@ export default function TimeTable() {
   };
 
   const navButtons: Array<{ id: typeof activePage; label: string }> = [
-    { id: 'timetable', label: 'Time Table' },
-    { id: 'routine', label: 'Edit Routine' },
-    { id: 'tenK', label: '10K Challenge' },
-    { id: 'tasks', label: 'Task Master' },
+    { id: 'tasks', label: 'Compare Routine' }
   ];
 
   return (
     <section>
-        <div className="fixed top-0 left-0 w-full">
+        {/* <div className="fixed top-0 left-0 w-full">
           <TopBar />
-        </div>
+        </div> */}
         <div className="flex flex-row mt-[80px]">
           <SideBar 
             selectedSubject={selectedSubject} 

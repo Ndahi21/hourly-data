@@ -199,9 +199,15 @@ export default function Analytics() {
         <div
           className="w-[380px] h-[calc(100vh-40px)] flex-shrink-0 bg-gray-100 p-[20px] py-[15px] overflow-y-auto"
         >
-          <div className="flex flex-row items-center mb-[12px]">
-            <img src="/graph.png" className="w-[30px] h-[30px] mr-[10px] object-contain"/>
-            <h2 className="text-[22px] font-bold">Analytics</h2>
+          <div className="flex flex-row items-center gap-8 mb-[12px]">
+            <div className="flex flex-row items-center gap-2">
+              <img src="/graph.png" className="w-[30px] h-[30px] mr-[2px] object-contain"/>
+              <h2 className="text-[22px] font-bold">Analytics</h2>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <img src="/graph.png" className="w-[30px] h-[30px] mr-[2px] object-contain"/>
+              <h2 className="text-[22px] font-bold">Task Master</h2>
+            </div>
           </div>
 
           {loading ? (
