@@ -16,7 +16,7 @@ const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 export default function TopBar({ activePage, onChangePage, onChangeWeekOffset, currentWeekStart }: TopBarProps) {
 
   return (
-    <div className="fixed top-0 left-[340px] right-0 z-50 bg-white pt-[28px] pb-[12px]">
+    <div className="fixed top-0 left-[340px] right-0 z-50 bg-white pt-[28px] pb-[0px]">
       {/* Page navigation header */}
       <div className="flex mb-[8px] items-center">
         {activePage === 'timetable' && (
@@ -52,7 +52,7 @@ export default function TopBar({ activePage, onChangePage, onChangeWeekOffset, c
         </button>
       </div>
       {activePage === 'timetable' && (
-        <div className="flex">
+        <div className="flex pl-10 pt-2">
           {days.map((day, dayIndex) => (
             <div key={dayIndex} className="w-[100px]">
               <h3 className="text-[16px] mb-[2px] flex justify-center">

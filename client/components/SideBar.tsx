@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import HourColors, { Subject } from './HourColors';
-import { Users } from 'lucide-react';
+import { Users, CalendarSync, Zap } from 'lucide-react';
 import { Page } from './TopBar';
 
 const defaultSubjects: Subject[] = [
@@ -138,22 +138,18 @@ export default function SideBar({ selectedSubject, onSelectSubject, onChangePage
             <Users className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
             <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
           </div>
-          <button
-            type="button"
+          <div
             onClick={() => onChangePage('routine')}
-            className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
-          >
-            <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine
-            </p>
-          </button>
-          <button
-            type="button"
+            className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <CalendarSync className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine</p>
+          </div>
+          <div
             onClick={() => onChangePage('tenK')}
-            className="grid grid-cols-4 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100"
-          >
-            <p className="col-span-3 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">10K Challenge
-            </p>
-          </button>
+            className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <Zap className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
+            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">10K Challenge</p>
+          </div>
         </div>
       </div>
 

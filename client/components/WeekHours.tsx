@@ -212,7 +212,7 @@ export default function WeekHours({ selectedSubject, currentWeekStart }: WeekHou
   }, []);
   
   return (
-    <div className="pt-[24px]">
+    <div className="pt-[16px]">
       <div className="flex flex-row">
         <div className="text-right pr-[8px] pt-[14px] text-[12px] gap-[12px] flex flex-col">
           <div>1 am</div>
