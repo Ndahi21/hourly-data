@@ -33,7 +33,7 @@ export default function TimeTable() {
             onSelectSubject={setSelectedSubject}
             onChangePage={setActivePage}
           />
-          <div className="p-[20px] pl-[340px] pt-[24px]">
+          <div className={`p-[20px] pl-[340px] ${activePage === 'timetable' ? 'pt-[150px]' : 'pt-[90px]'}`}>
             {activePage === 'timetable' && (
               <WeekHours
                 selectedSubject={selectedSubject}
