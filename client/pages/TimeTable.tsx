@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import TenKGoals from '../components/TenKGoals';
 import dayjs from 'dayjs';
 
 import WeekHours from '../components/WeekHours';
@@ -44,10 +45,7 @@ export default function TimeTable() {
               <Routine selectedSubject={selectedSubject} />
             )}
             {activePage === 'tenK' && (
-              <div>
-                <h2 className="text-[24px] font-bold">10K Challenge</h2>
-                <p className="text-[14px] text-gray-600">Coming soon.</p>
-              </div>
+              <TenKGoals />
             )}
           </div>
           <Analytics />
