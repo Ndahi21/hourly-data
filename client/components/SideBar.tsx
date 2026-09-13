@@ -131,26 +131,32 @@ export default function SideBar({ selectedSubject, onSelectSubject, onChangePage
           <button
             type="button"
             onClick={() => setIsAddOpen(true)}
-            className="border border-[2px] border-solid border-[#777777] p-[10px] py-[4px] text-center bg-gray-200 cursor-pointer mt-[12px] mb-[24px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-300"
+            className="border border-[2px] border-solid border-[#777777] p-[10px] py-[4px] text-center bg-gray-200 cursor-pointer my-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-300"
           >
             + Add Subject
           </button>
 
-          <div className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-            <Users className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Add Event</p>
+          <div className="flex border border-[2px] border-solid border-[#777777] p-[10px] cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <div className="flex flex-row items-center mx-auto gap-2">
+              <Users className="w-[24px] h-[30px]"/>
+              <p>Add Event</p>
+            </div>
           </div>
           <div
             onClick={() => onChangePage('routine')}
-            className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-            <CalendarSync className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">Edit Routine</p>
+            className="flex border border-[2px] border-solid border-[#777777] p-[10px] cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <div className="flex flex-row items-center mx-auto gap-2">
+              <CalendarSync className="w-[24px] h-[30px]"/>
+              <p>Edit Routine</p>
+            </div>
           </div>
           <div
             onClick={() => onChangePage('tenK')}
-            className="grid grid-cols-3 border border-[2px] border-solid border-[#777777] p-[10px] text-center cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
-            <Zap className="block w-[24px] mr-[10px] h-[30px] mx-auto mb-[4px] object-contain"/>
-            <p className="col-span-2 mx-auto mix-blend-multiply ml-[2px] mt-[4px]">10K Challenge</p>
+            className="flex border border-[2px] border-solid border-[#777777] p-[10px] cursor-pointer mt-[12px] w-[240px] font-bold shadow-[5px_3px_3px_rgba(0,0,0,0.1)] rounded-[4px] hover:bg-gray-100">
+            <div className="flex flex-row items-center mx-auto gap-2">
+              <Zap className="w-[24px] h-[30px]"/>
+              <p>10K Challenge</p>
+            </div>
           </div>
         </div>
       </div>
