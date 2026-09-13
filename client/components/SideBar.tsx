@@ -120,8 +120,10 @@ export default function SideBar({ selectedSubject, onSelectSubject, onChangePage
     <>
       <div className="fixed p-[20px] pt-[10px] ml-[0px] w-[300px] h-[100%] font-sans bg-white z-[1000]">
         <div className="flex flex-row items-center justify-start gap-[10px]">
-          <img src="../images/hourglass.png" alt="Hourglass" className="pl-[10px] w-[36px] h-[36px]" />
-          <h1 className="text-[36px] pt-[10px] pl-[0px] mb-2 pb-2 font-bold">Hourly Data</h1>
+          <a href="/home" className="flex flex-row items-center gap-[10px]">
+            <img src="../images/hourglass.png" alt="Hourglass" className="pl-[10px] w-[36px] h-[36px]" />
+            <h1 className="text-[36px] pt-[10px] pl-[0px] mb-2 pb-2 font-bold">Hourly Data</h1>
+          </a>
         </div>
         <HourColors subjects={subjects} selectedSubject={selectedSubject} onSelectSubject={onSelectSubject} />
 
