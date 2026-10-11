@@ -127,34 +127,37 @@ export default function ExpandAnalytics({ isOpen, onClose }: ExpandAnalyticsProp
       try {
         setLoading(true);
 
-        // Fetch all analytics endpoints
+        // Fetch extra so the boundary week isn't truncated, then keep only the last 8 complete weeks
         const [trendRes, breakdownRes, ratingRes, sleepRes] = await Promise.all([
-          fetch('/api/analytics/weekly-trend?weeks=8'),
-          fetch('/api/analytics/weekly-breakdown?weeks=8'),
-          fetch('/api/analytics/weekly-rating?weeks=8'),
-          fetch('/api/analytics/weekly-sleep?weeks=8')
+          fetch('/api/analytics/weekly-trend?weeks=12'),
+          fetch('/api/analytics/weekly-breakdown?weeks=12'),
+          fetch('/api/analytics/weekly-rating?weeks=12'),
+          fetch('/api/analytics/weekly-sleep?weeks=12')
         ]);
 
-        // Parse each response once
-        if (trendRes.ok) {
-          const trendJson = await trendRes.json();
-          setTrendData(trendJson.data || []);
-        }
+        const trendJson = trendRes.ok ? await trendRes.json() : { data: [] };
+        const breakdownJson = breakdownRes.ok ? await breakdownRes.json() : { data: [] };
+        const ratingJson = ratingRes.ok ? await ratingRes.json() : { data: [] };
+        const sleepJson = sleepRes.ok ? await sleepRes.json() : { data: [] };
 
-        if (breakdownRes.ok) {
-          const breakdownJson = await breakdownRes.json();
-          setBreakdownData(breakdownJson.data || []);
-        }
+        // One shared 8-week window so all four charts show the same weeks
+        const recentWeeks = new Set(
+          Array.from(new Set<string>([
+            ...(trendJson.data || []),
+            ...(breakdownJson.data || []),
+            ...(ratingJson.data || []),
+            ...(sleepJson.data || []),
+          ].map((item: { weekStart: string }) => item.weekStart)))
+            .sort()
+            .slice(-8)
+        );
 
-        if (ratingRes.ok) {
-          const ratingJson = await ratingRes.json();
-          setRatingData(ratingJson.data || []);
-        }
+        const inWindow = (item: { weekStart: string }) => recentWeeks.has(item.weekStart);
 
-        if (sleepRes.ok) {
-          const sleepJson = await sleepRes.json();
-          setSleepData(sleepJson.data || []);
-        }
+        setTrendData((trendJson.data || []).filter(inWindow));
+        setBreakdownData((breakdownJson.data || []).filter(inWindow));
+        setRatingData((ratingJson.data || []).filter(inWindow));
+        setSleepData((sleepJson.data || []).filter(inWindow));
 
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
