@@ -142,7 +142,7 @@ export default function Routine({ selectedSubject }: RoutineProps) {
   }, []);
 
   return (
-    <div className="p-[20px] pl-[340px]">
+    <div className="p-[20px]">
       <div className="sticky top-[80px] z-50 bg-white pb-[16px]">
         {/* Header */}
         <div className="flex items-center justify-between mb-[12px]">
