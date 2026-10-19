@@ -7,16 +7,19 @@ export default function TenKGoals() {
   return (
     <div>
       <div>
-        <h1>TenK Goals</h1>
+        <h2 className="text-[24px] font-bold">10K Goals</h2>
         <p>Track your progress in learning a new skill.</p>
       </div>
       <div>
         <p>Set aside hours in your week to focus on learning your new skill and rate your progress regularly.</p>
-        <input type="number" placeholder="Hours per week" />
-        <button>Save</button>
-        <a href="#">Plan with Routine</a>
-        <p>Add subject, or appoint subject type</p>
-        <button>Appoint</button>
+        <div className="flex gap-2 m-4">
+          <input type="number" placeholder="Hours per week" />
+          <button className="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+        </div>
+        <div className="flex gap-2 m-4">
+          <input type="text" placeholder="Subject" />
+          <button className="bg-blue-500 text-white px-4 py-2 rounded">Appoint</button>
+        </div>
       </div>
       <div>
         <p>Track your weekly progress here.</p>
